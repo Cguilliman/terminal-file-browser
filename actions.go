@@ -17,6 +17,9 @@ func ActionsHandle(display *Display) bool {
 	case tm.KeyEnter:
 		display.SelectDir()
 		return false
+    case tm.KeyCtrlP:
+        Cd(display.Manager)
+        return false
 	}
 	return false
 }
