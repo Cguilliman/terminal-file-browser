@@ -5,18 +5,18 @@ import (
 )
 
 func ActionsHandle(display *Display) bool {
-    switch event := tm.PollEvent(); event.Key {
-    case tm.KeyCtrlQ:
-        return true
-    case tm.KeyArrowUp:
-        display.ListUp()
-        return false
-    case tm.KeyArrowDown:
-        display.ListDown()
-        return false
-    case tm.KeyEnter:
-        display.SelectDir()
-        return false
-    }
+	switch event := tm.PollEvent(); event.Key {
+	case tm.KeyCtrlQ:
+		return true
+	case tm.KeyArrowUp:
+		display.ListUp()
+		return false
+	case tm.KeyArrowDown:
+		display.ListDown()
+		return false
+	case tm.KeyEnter:
+		display.SelectDir()
+		return false
+	}
 	return false
 }

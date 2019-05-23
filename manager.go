@@ -1,12 +1,12 @@
 package main
 
 import (
-	"reflect"
-	"strconv"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
+	"strconv"
 )
 
 var (
@@ -15,15 +15,20 @@ var (
 )
 
 type Manager struct {
-	Path  string
-	Files []os.FileInfo
+	Path              string
+	Files             []os.FileInfo
 	CurrentFileNumber int
 }
 
 func (manager *Manager) RenderList() []string {
 	var response []string
 	for n, file := range manager.Files {
-		row := file.Name() + " " + strconv.Itoa(int(file.Size()))
+		fileName := file.Name()
+		if n == 0 {
+			fileName = "..(Current)"
+		}
+
+		row := fileName + " " + strconv.Itoa(int(file.Size()))
 		if n == manager.CurrentFileNumber {
 			row = ">> " + row
 		}
@@ -33,10 +38,16 @@ func (manager *Manager) RenderList() []string {
 }
 
 func (manager *Manager) GetFiles() {
+	root_dir, err := os.Lstat(manager.Path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	base_files := []os.FileInfo{root_dir}
 	files, err := ioutil.ReadDir(manager.Path)
 	if err != nil {
 		log.Fatal(err)
 	}
+	files = append(base_files, files...)
 	manager.Files = files
 }
 
@@ -52,11 +63,11 @@ func (manager *Manager) PrevFile() {
 	}
 }
 
-func (manager *Manager) SelectDir()  {
+func (manager *Manager) SelectDir() {
 	file := manager.Files[manager.CurrentFileNumber]
 	if !file.IsDir() {
-		fmt.Println("zalupa")  // re-factor to normal error output
-		return 
+		fmt.Println("zalupa") // re-factor to normal error output
+		return
 	}
 
 	newPath := manager.Path
@@ -64,7 +75,7 @@ func (manager *Manager) SelectDir()  {
 		newPath = newPath + "/"
 	}
 	newPath = newPath + file.Name() + "/"
-	
+
 	manager.Path = newPath
 	manager.GetFiles()
 }

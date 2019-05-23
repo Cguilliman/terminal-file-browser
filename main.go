@@ -1,8 +1,8 @@
 package main
 
 import (
-	tm "github.com/nsf/termbox-go"
 	ui "github.com/gizak/termui"
+	tm "github.com/nsf/termbox-go"
 )
 
 func main() {
@@ -15,11 +15,11 @@ func main() {
 	tm.SetInputMode(tm.InputEsc)
 	defer Shutdown()
 
-    display := InitDisplay(manager)
+	display := InitDisplay(manager)
 
-    for {
-        exit := ActionsHandle(display)
-        if exit {
+	for {
+		exit := ActionsHandle(display)
+		if exit {
 			return
 		}
 	}
