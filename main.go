@@ -1,12 +1,13 @@
 package main
 
 import (
+	mg "github.com/Cguilliman/terminal-file-browser/manager"
 	ui "github.com/gizak/termui"
 	tm "github.com/nsf/termbox-go"
 )
 
 func main() {
-	manager := InitManager()
+	manager := mg.InitManager()
 	_ = manager
 
 	if err := ui.Init(); err != nil {

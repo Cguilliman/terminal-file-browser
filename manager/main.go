@@ -1,17 +1,11 @@
-package main
+package manager
 
 import (
-	"fmt"
 	"io/ioutil"
+	"errors"
 	"log"
 	"os"
-	"reflect"
 	"strconv"
-)
-
-var (
-	_ = fmt.Println
-	_ = reflect.TypeOf
 )
 
 type Manager struct {
@@ -22,31 +16,41 @@ type Manager struct {
 
 func (manager *Manager) RenderList() []string {
 	var response []string
+
 	for n, file := range manager.Files {
-		fileName := file.Name()
-		if n == 0 {
-			fileName = "..(Current)"
+		var fileName string
+		switch n {
+		case 0:
+			fileName = "[.(Current)](fg:blue)"
+		case 1:
+			fileName = "[..(Parent)](fg:blue)"
+		default:
+			fileName = file.Name()
 		}
 
 		row := fileName + " " + strconv.Itoa(int(file.Size()))
 		if n == manager.CurrentFileNumber {
 			row = ">> " + row
 		}
+		if file.IsDir() {
+			row = "[" + row + "](fg:blue)"
+		}
 		response = append(response, row)
 	}
+
 	return response
 }
 
-func (manager *Manager) GetFiles() {
-	root_dir, err := os.Lstat(manager.Path)
-	if err != nil {
-		log.Fatal(err)
+func (manager *Manager) SetFiles() {
+	base_files := []os.FileInfo{
+		getFile(manager.Path),
+		getFile(ParentDirPath(manager.Path)),
 	}
-	base_files := []os.FileInfo{root_dir}
 	files, err := ioutil.ReadDir(manager.Path)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	files = append(base_files, files...)
 	manager.Files = files
 }
@@ -63,35 +67,20 @@ func (manager *Manager) PrevFile() {
 	}
 }
 
-func (manager *Manager) SelectDir() {
+func (manager *Manager) EnterDir() error {
 	file := manager.Files[manager.CurrentFileNumber]
 	if !file.IsDir() {
-		fmt.Println("zalupa") // re-factor to normal error output
-		return
+		return errors.New("This is file!")
 	}
-
-	newPath := manager.Path
-	if string("/") != string(newPath[len(newPath)-1]) {
-		newPath = newPath + "/"
+	switch manager.CurrentFileNumber{
+		case 0:
+			return nil
+		case 1:
+			manager.Path = ParentDirPath(manager.Path)
+		default:
+			manager.Path = ConcatPath(manager.Path, file.Name())
 	}
-	newPath = newPath + file.Name() + "/"
-
-	manager.Path = newPath
-	manager.GetFiles()
-}
-
-func getLocalPath() string {
-	path, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return path
-}
-
-func InitManager() *Manager {
-	var manager Manager
-	manager.Path = getLocalPath()
-	manager.GetFiles()
-	manager.CurrentFileNumber = 0
-	return &manager
+	manager.CurrentFileNumber = 0 // reset current file number
+	manager.SetFiles()
+	return nil
 }

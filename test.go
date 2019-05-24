@@ -1,27 +1,26 @@
 package main
 
 import (
-	"log"
-
-	ui "github.com/gizak/termui"
-	"github.com/gizak/termui/widgets"
+	"fmt"
+	// "os"
+	// "path/filepath"
+	mg "github.com/Cguilliman/terminal-file-browser/manager"
 )
 
 func main() {
-	if err := ui.Init(); err != nil {
-		log.Fatalf("failed to initialize termui: %v", err)
-	}
-	defer ui.Close()
+	fmt.Println(mg.ParentDirPath("/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser"))
+	fmt.Println(mg.ConcatPath("/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser", "qqqq"))
+	// var files []string
 
-	p := widgets.NewParagraph()
-	p.Text = "Hello World!"
-	p.SetRect(0, 0, 25, 5)
-
-	ui.Render(p)
-
-	for e := range ui.PollEvents() {
-		if e.Type == ui.KeyboardEvent {
-			break
-		}
-	}
+	// root := "/some/folder/to/scan"
+	// err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	// 	files = append(files, path)
+	// 	return nil
+	// })
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, file := range files {
+	// 	fmt.Println(file)
+	// }
 }

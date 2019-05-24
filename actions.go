@@ -17,9 +17,9 @@ func ActionsHandle(display *Display) bool {
 	case tm.KeyEnter:
 		display.SelectDir()
 		return false
-    case tm.KeyCtrlP:
-        Cd(display.Manager)
-        return false
+		// case tm.KeyCtrlC:
+		// 	CopyInBuffer(display.Manager.PathToCurrentFile())
+		// 	return false
 	}
 	return false
 }
