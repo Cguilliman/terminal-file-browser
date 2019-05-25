@@ -1,26 +1,51 @@
 package main
 
 import (
-	"fmt"
-	// "os"
-	// "path/filepath"
-	mg "github.com/Cguilliman/terminal-file-browser/manager"
+	// "fmt"
+	"time"
+	ui "github.com/gizak/termui"
+	"github.com/gizak/termui/widgets"
 )
 
-func main() {
-	fmt.Println(mg.ParentDirPath("/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser"))
-	fmt.Println(mg.ConcatPath("/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser", "qqqq"))
-	// var files []string
+func drawFunction(input *widgets.Paragraph, new_char string) {
+	if new_char == "" {
 
-	// root := "/some/folder/to/scan"
-	// err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-	// 	files = append(files, path)
-	// 	return nil
-	// })
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// for _, file := range files {
-	// 	fmt.Println(file)
-	// }
+	}
+	input.Text = input.Text + new_char
+	ui.Render(input)
+}
+
+func main() {
+	if err := ui.Init(); err != nil {
+		panic(err)
+	}
+
+	input := widgets.NewParagraph()
+	input.Text = "Search Field _"
+	input.SetRect(0, 0, 80, 3)
+	ui.Render(input)
+
+	defer ui.Close()
+
+	uiEvents := ui.PollEvents()
+	ticker := time.NewTicker(time.Second).C
+	for {
+		select {
+		case e := <-uiEvents:
+			switch e.ID { // event string/identifier
+			case "<C-q>", "<C-c>": // press 'q' or 'C-c' to quit
+				return
+			}
+			switch e.Type {
+			case ui.KeyboardEvent: // handle all key presses
+				eventID := e.ID // keypress string
+				if eventID == "<Space>" {
+					eventID = " "
+				}
+				drawFunction(input, eventID)
+			}
+		case <-ticker:
+			drawFunction(input, "")
+		}
+	}
 }

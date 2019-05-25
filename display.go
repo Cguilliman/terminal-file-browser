@@ -14,6 +14,7 @@ var (
 type Display struct {
 	// Header
 	List *widgets.List
+	Input *widgets.Paragraph
 	// Footer
 	Manager *mg.Manager
 }
@@ -50,15 +51,38 @@ func (display *Display) InitList() {
 	display.List.Rows = display.Manager.RenderList()
 }
 
+func (display *Display) InputProcess(searchChan chan string) {
+	var searchString string
+	// var cusor int
+	
+	for char := range searchChan {
+		switch {
+		case char == "<Backspace>" && len(searchString) > 0:
+			searchString = searchString[:len(searchString)-1]
+		case char ==  "<Backspace>":
+			continue
+		default:
+			searchString = searchString + char
+		}
+
+		display.Input.Text = searchString
+		ui.Render(display.Input)
+	}
+}
+
 func InitDisplay(manager *mg.Manager) *Display {
 	list := widgets.NewList()
-	defer ui.Render(list)
+	input := widgets.NewParagraph()
+	defer ui.Render(list, input)
 
 	list.WrapText = true
-	list.SetRect(0, 0, 80, 20)
+	list.SetRect(0, 3, 80, 20)
 	list.TextStyle = ui.NewStyle(ui.ColorYellow)
 
-	display := &Display{list, manager}
+	input.Text = "Search Field _"
+	input.SetRect(0, 0, 80, 3)
+
+	display := &Display{list, input, manager}
 	display.InitList()
 	return display
 }

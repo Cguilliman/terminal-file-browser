@@ -37,10 +37,15 @@ func ParentDirPath(path string) string {
 	return strings.Join(dirs[:len(dirs)-1], "/")
 }
 
-func InitManager() *Manager {
+func InitManager(path string) *Manager {
+	if path == "" {
+		path = getLocalPath()
+	}
+
 	var manager Manager
-	manager.Path = getLocalPath()
+	manager.Path = path
 	manager.SetFiles()
 	manager.CurrentFileNumber = 0
+	
 	return &manager
 }

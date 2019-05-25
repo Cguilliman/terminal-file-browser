@@ -1,25 +1,57 @@
 package main
 
 import (
-	tm "github.com/nsf/termbox-go"
+	ui "github.com/gizak/termui"
 )
 
-func ActionsHandle(display *Display) bool {
-	switch event := tm.PollEvent(); event.Key {
-	case tm.KeyCtrlQ:
-		return true
-	case tm.KeyArrowUp:
-		display.ListUp()
-		return false
-	case tm.KeyArrowDown:
-		display.ListDown()
-		return false
-	case tm.KeyEnter:
-		display.SelectDir()
-		return false
-		// case tm.KeyCtrlC:
-		// 	CopyInBuffer(display.Manager.PathToCurrentFile())
-		// 	return false
+func charDescript(char string, searchChan chan string) {
+	if char == "<Space>" {
+		char = " "
 	}
-	return false
+	searchChan <- char
+}
+
+func WriteHandle(display *Display, searchChan chan string) {
+	uiEvents := ui.PollEvents()
+
+	for {
+		select {
+		case e := <-uiEvents:
+			switch e.ID {
+			case "<C-s>", "<C-q>":
+				return
+			}
+
+			switch e.Type {
+			case ui.KeyboardEvent:
+				eventID := e.ID
+				charDescript(eventID, searchChan)
+			}
+		}
+	}
+}
+
+func ActionsHandle(display *Display) {
+	uiEvents := ui.PollEvents()
+
+	for {
+		select {
+		case e := <-uiEvents:
+			switch e.ID {
+			case "<C-q>":
+				return
+			case "<C-s>":
+				searchChan := make(chan string)
+				go display.InputProcess(searchChan)
+				WriteHandle(display, searchChan)
+				uiEvents = ui.PollEvents()  // KOSTIL`
+			case "<Up>":
+				display.ListUp()
+			case "<Down>":
+				display.ListDown()
+			case "<Enter>":
+				display.SelectDir()
+			}
+		}
+	}
 }
