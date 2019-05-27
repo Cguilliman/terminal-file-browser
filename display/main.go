@@ -11,6 +11,14 @@ var (
 	_ = fmt.Println
 )
 
+type DisplayInterface interface {
+	ListUp()
+	ListDown()
+	SelectDir()
+	ResetList()
+	SearchInputProcess()
+}
+
 type Display struct {
 	List    *widgets.List
 	Input   *Input
@@ -20,36 +28,39 @@ type Display struct {
 func (self *Display) ListUp() {
 	self.List.ScrollUp()    // more `cursor`
 	self.Manager.PrevFile() // change current file position
-	self.InitList(true)         // re-render files list
+	self.initList(true)     // re-render files list
 }
 
 func (self *Display) ListDown() {
 	self.List.ScrollDown()  // move `cursor`
-	self.Manager.NaxtFile() // change current file position
-	self.InitList(true)         // re-render files list
+	self.Manager.NextFile() // change current file position
+	self.initList(true)     // re-render files list
 }
 
 func (self *Display) SelectDir() {
-	// NOTE: mb I need to remove it to another place
-	// TODO: add invalidation `if`
-	err := self.Manager.EnterDir() // change directory and get files list
+	err := self.Manager.EnterDir() // change current directory and get files list
 	if err != nil {
 		return
 	}
-	self.InitList(false) // re-initialize list of files in display
+	self.initList(false) // re-initialize list of files in display
 	self.List.ScrollTop()
 	ui.Render(self.List)
 }
 
-func (self *Display) InitList(isRerender bool) {
+func (self *Display) ResetList() {
+	self.Manager.SetFiles()
+	self.initList(true)
+}
+
+func (self *Display) initList(isRerender bool) {
 	if isRerender {
 		defer ui.Render(self.List)
 	}
 	self.List.Title = self.Manager.Path
-	self.List.Rows = self.Manager.RenderList()
+	self.List.Rows = self.Manager.RenderList(nil)
 }
 
-func (self *Display) RerenderLoop(filesChan chan []string) {
+func (self *Display) rerenderLoop(filesChan chan []string) {
 	for list := range filesChan {
 		self.List.Rows = list
 		ui.Render(self.List)
@@ -57,15 +68,15 @@ func (self *Display) RerenderLoop(filesChan chan []string) {
 }
 
 func (self *Display) SearchInputProcess() chan string {
-    charChan := make(chan string)
-    searchChan := make(chan string)
-    renderChan := make(chan []string)
+	charChan := make(chan string)
+	searchChan := make(chan string)
+	renderChan := make(chan []string)
 
-    go self.Input.InputProcess(charChan, searchChan)
-    go self.Manager.Search(searchChan, renderChan)
-    go self.RerenderLoop(renderChan)
-    
-    return charChan
+	go self.Input.InputProcess(charChan, searchChan)
+	go self.Manager.Search(searchChan, renderChan)
+	go self.rerenderLoop(renderChan)
+
+	return charChan
 }
 
 func InitDisplay(manager *mg.Manager) *Display {
@@ -78,6 +89,6 @@ func InitDisplay(manager *mg.Manager) *Display {
 	list.TextStyle = ui.NewStyle(ui.ColorYellow)
 
 	display := &Display{list, input, manager}
-	display.InitList(false)
+	display.initList(false)
 	return display
 }

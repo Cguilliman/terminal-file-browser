@@ -6,7 +6,6 @@ import (
 	"github.com/Cguilliman/terminal-file-browser/display"
 	mg "github.com/Cguilliman/terminal-file-browser/manager"
 	ui "github.com/gizak/termui"
-	tm "github.com/nsf/termbox-go"
 )
 
 func printHelp() {
@@ -32,20 +31,9 @@ func main() {
 		panic(err)
 	}
 	// tm.SetInputMode(tm.InputEsc)
-	defer Shutdown()
+	defer ui.Close()
 
 	// infinite processing loop
 	display := display.InitDisplay(manager)
 	ActionsHandle(display)
-	// for {
-	// 	if exit {
-	// 		return
-	// 	}
-	// }
-}
-
-func Shutdown() {
-	if tm.IsInit {
-		ui.Close()
-	}
 }

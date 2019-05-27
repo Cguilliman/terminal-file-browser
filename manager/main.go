@@ -2,23 +2,37 @@ package manager
 
 import (
 	"errors"
-	"strings"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
+
+type ManagerInterface interface {
+	RenderList() []string
+	SetFiles()
+	NextFile()
+	PrevFile()
+	EnterDir() error
+	Search(chan string, chan []string)
+}
 
 type Manager struct {
 	Path              string
-	Files             []os.FileInfo
+	Files, Searchable []os.FileInfo
 	CurrentFileNumber int
 }
 
-func (manager *Manager) RenderList() []string {
+// Return array of strings for render 
+// *get files from manger.Files array
+func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
+	if len(fileList) == 0 {
+		fileList = manager.Files
+	}
 	var response []string
 
-	for n, file := range manager.Files {
+	for n, file := range fileList {
 		var fileName string
 		switch n {
 		case 0:
@@ -42,6 +56,8 @@ func (manager *Manager) RenderList() []string {
 	return response
 }
 
+// Return default current directory 
+// and parent directory `os.FileIngo` objects list
 func (manager *Manager) defaultFiles() []os.FileInfo {
 	return []os.FileInfo{
 		getFile(manager.Path),
@@ -49,6 +65,7 @@ func (manager *Manager) defaultFiles() []os.FileInfo {
 	}
 }
 
+// Set files in manage.Files list of files objects
 func (manager *Manager) SetFiles() {
 	base_files := manager.defaultFiles()
 	files, err := ioutil.ReadDir(manager.Path)
@@ -60,23 +77,29 @@ func (manager *Manager) SetFiles() {
 	manager.Files = files
 }
 
-func (manager *Manager) NaxtFile() {
+// Next file. Change only CurrentFileNumber param.
+func (manager *Manager) NextFile() {
 	if len(manager.Files)-1 > manager.CurrentFileNumber {
 		manager.CurrentFileNumber++
 	}
 }
 
+// Previous file. Change only CurrentFileNumber param.
 func (manager *Manager) PrevFile() {
 	if 0 < manager.CurrentFileNumber {
 		manager.CurrentFileNumber--
 	}
 }
 
+// Enter directory
+// change `manger.Path` as current inner director
+// inner directory files and save as `manager.Files`
 func (manager *Manager) EnterDir() error {
 	file := manager.Files[manager.CurrentFileNumber]
 	if !file.IsDir() {
 		return errors.New("This is file!")
 	}
+
 	switch manager.CurrentFileNumber {
 	case 0:
 		return nil
@@ -85,21 +108,24 @@ func (manager *Manager) EnterDir() error {
 	default:
 		manager.Path = ConcatPath(manager.Path, file.Name())
 	}
-	manager.CurrentFileNumber = 0  // reset current file number
+	
+	manager.CurrentFileNumber = 0 // reset current file number
 	manager.SetFiles()
 	return nil
 }
 
 func (manager *Manager) Search(searchChan chan string, renderChan chan []string) {
-	manager.Files = manager.defaultFiles()
-
+	manager.Searchable = manager.Files
 	for searchable := range searchChan {
-		for _, obj := range manager.Files {
+		manager.Files = manager.defaultFiles()
+
+		for _, obj := range manager.Searchable {
 			// TODO: re-factor searching
 			if strings.Contains(obj.Name(), searchable) {
 				manager.Files = append(manager.Files, obj)
 			}
 		}
-		renderChan <- manager.RenderList()
+
+		renderChan <- manager.RenderList(manager.Files)
 	}
 }

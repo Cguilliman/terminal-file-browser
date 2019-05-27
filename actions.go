@@ -19,7 +19,7 @@ func WriteHandle(display *display.Display, searchChan chan string) {
 		if e.Type == ui.KeyboardEvent {
 			switch e.ID {
 			case "<C-f>", "<C-q>":
-				display.InitList(true)
+				display.ResetList()
 				return
 			case "<Up>":
 				display.ListUp()
@@ -27,6 +27,8 @@ func WriteHandle(display *display.Display, searchChan chan string) {
 				display.ListDown()
 			case "<Enter>":
 				display.SelectDir()
+				// TODO reset input field
+				return
 			default:
 				eventID := e.ID
 				charDescript(eventID, searchChan)
