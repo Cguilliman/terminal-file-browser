@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/Cguilliman/terminal-file-browser/display"
 	mg "github.com/Cguilliman/terminal-file-browser/manager"
 	ui "github.com/gizak/termui"
 	tm "github.com/nsf/termbox-go"
@@ -20,7 +21,7 @@ func main() {
 	)
 	if *helpFlag {
 		printHelp()
-		return 
+		return
 	}
 
 	// initialize manager
@@ -34,7 +35,7 @@ func main() {
 	defer Shutdown()
 
 	// infinite processing loop
-	display := InitDisplay(manager)
+	display := display.InitDisplay(manager)
 	ActionsHandle(display)
 	// for {
 	// 	if exit {

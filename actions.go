@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Cguilliman/terminal-file-browser/display"
 	ui "github.com/gizak/termui"
 )
 
@@ -11,19 +12,19 @@ func charDescript(char string, searchChan chan string) {
 	searchChan <- char
 }
 
-func WriteHandle(display *Display, searchChan chan string) {
+func WriteHandle(display *display.Display, searchChan chan string) {
 	uiEvents := ui.PollEvents()
 
-	for {
-		select {
-		case e := <-uiEvents:
+	for e := range uiEvents {
+		if e.Type == ui.KeyboardEvent {
 			switch e.ID {
-			case "<C-s>", "<C-q>":
+			case "<C-f>", "<C-q>":
 				return
-			}
-
-			switch e.Type {
-			case ui.KeyboardEvent:
+			case "<Up>":
+				display.ListUp()
+			case "<Down>":
+				display.ListDown()
+			default:
 				eventID := e.ID
 				charDescript(eventID, searchChan)
 			}
@@ -31,7 +32,7 @@ func WriteHandle(display *Display, searchChan chan string) {
 	}
 }
 
-func ActionsHandle(display *Display) {
+func ActionsHandle(display *display.Display) {
 	uiEvents := ui.PollEvents()
 
 	for {
@@ -40,11 +41,11 @@ func ActionsHandle(display *Display) {
 			switch e.ID {
 			case "<C-q>":
 				return
-			case "<C-s>":
+			case "<C-f>":
 				searchChan := make(chan string)
 				go display.InputProcess(searchChan)
 				WriteHandle(display, searchChan)
-				uiEvents = ui.PollEvents()  // KOSTIL`
+				uiEvents = ui.PollEvents() // KOSTIL`
 			case "<Up>":
 				display.ListUp()
 			case "<Down>":

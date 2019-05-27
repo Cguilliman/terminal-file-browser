@@ -1,8 +1,8 @@
 package manager
 
 import (
-	"io/ioutil"
 	"errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -72,13 +72,13 @@ func (manager *Manager) EnterDir() error {
 	if !file.IsDir() {
 		return errors.New("This is file!")
 	}
-	switch manager.CurrentFileNumber{
-		case 0:
-			return nil
-		case 1:
-			manager.Path = ParentDirPath(manager.Path)
-		default:
-			manager.Path = ConcatPath(manager.Path, file.Name())
+	switch manager.CurrentFileNumber {
+	case 0:
+		return nil
+	case 1:
+		manager.Path = ParentDirPath(manager.Path)
+	default:
+		manager.Path = ConcatPath(manager.Path, file.Name())
 	}
 	manager.CurrentFileNumber = 0 // reset current file number
 	manager.SetFiles()

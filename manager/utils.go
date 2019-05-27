@@ -46,6 +46,6 @@ func InitManager(path string) *Manager {
 	manager.Path = path
 	manager.SetFiles()
 	manager.CurrentFileNumber = 0
-	
+
 	return &manager
 }

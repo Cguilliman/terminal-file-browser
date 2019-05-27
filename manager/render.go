@@ -19,7 +19,7 @@ func getFileName(n int, file os.FileInfo) string {
 }
 
 func colorRender(name string, isDir, isCurrent bool) string {
-	switch  {
+	switch {
 	case isDir && isCurrent:
 		return ">> [ " + name + "](fg:green)"
 	case isCurrent:
