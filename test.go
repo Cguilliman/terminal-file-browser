@@ -17,7 +17,8 @@ import (
 // }
 
 func main() {
-	fmt.Println(strings.Contains("ss", "aass"))
+	val := strings.Contains("aass", "aa")
+	fmt.Println(val)
 	// if err := ui.Init(); err != nil {
 	// 	panic(err)
 	// }

@@ -2,6 +2,7 @@ package manager
 
 import (
 	"errors"
+	"strings"
 	"io/ioutil"
 	"log"
 	"os"
@@ -41,11 +42,15 @@ func (manager *Manager) RenderList() []string {
 	return response
 }
 
-func (manager *Manager) SetFiles() {
-	base_files := []os.FileInfo{
+func (manager *Manager) defaultFiles() []os.FileInfo {
+	return []os.FileInfo{
 		getFile(manager.Path),
 		getFile(ParentDirPath(manager.Path)),
 	}
+}
+
+func (manager *Manager) SetFiles() {
+	base_files := manager.defaultFiles()
 	files, err := ioutil.ReadDir(manager.Path)
 	if err != nil {
 		log.Fatal(err)
@@ -80,7 +85,21 @@ func (manager *Manager) EnterDir() error {
 	default:
 		manager.Path = ConcatPath(manager.Path, file.Name())
 	}
-	manager.CurrentFileNumber = 0 // reset current file number
+	manager.CurrentFileNumber = 0  // reset current file number
 	manager.SetFiles()
 	return nil
+}
+
+func (manager *Manager) Search(searchChan chan string, renderChan chan []string) {
+	manager.Files = manager.defaultFiles()
+
+	for searchable := range searchChan {
+		for _, obj := range manager.Files {
+			// TODO: re-factor searching
+			if strings.Contains(obj.Name(), searchable) {
+				manager.Files = append(manager.Files, obj)
+			}
+		}
+		renderChan <- manager.RenderList()
+	}
 }

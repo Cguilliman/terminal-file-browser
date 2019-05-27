@@ -17,11 +17,11 @@ type Input struct {
     Data string
 }
 
-func (self *Input) InputProcess(searchChan chan string) {
+func (self *Input) InputProcess(charChan, searchChan chan string) {
     var searchString string
     // var cursor int = len(searchString)
 
-    for char := range searchChan {
+    for char := range charChan {
         switch {
         case char == "<Backspace>" && len(searchString) > 0:
             searchString = searchString[:len(searchString)-1]
@@ -38,6 +38,7 @@ func (self *Input) InputProcess(searchChan chan string) {
             searchString = searchString + char
         }
 
+        searchChan <- searchString
         self.InputText(searchString, true)
     }
 }

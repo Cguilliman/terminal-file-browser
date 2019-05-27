@@ -19,11 +19,14 @@ func WriteHandle(display *display.Display, searchChan chan string) {
 		if e.Type == ui.KeyboardEvent {
 			switch e.ID {
 			case "<C-f>", "<C-q>":
+				display.InitList(true)
 				return
 			case "<Up>":
 				display.ListUp()
 			case "<Down>":
 				display.ListDown()
+			case "<Enter>":
+				display.SelectDir()
 			default:
 				eventID := e.ID
 				charDescript(eventID, searchChan)
@@ -42,9 +45,8 @@ func ActionsHandle(display *display.Display) {
 			case "<C-q>":
 				return
 			case "<C-f>":
-				searchChan := make(chan string)
-				go display.InputProcess(searchChan)
-				WriteHandle(display, searchChan)
+				charChan := display.SearchInputProcess()
+				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
 			case "<Up>":
 				display.ListUp()

@@ -20,15 +20,13 @@ type Display struct {
 func (self *Display) ListUp() {
 	self.List.ScrollUp()    // more `cursor`
 	self.Manager.PrevFile() // change current file position
-	self.InitList()         // re-render files list
-	ui.Render(self.List)
+	self.InitList(true)         // re-render files list
 }
 
 func (self *Display) ListDown() {
 	self.List.ScrollDown()  // move `cursor`
 	self.Manager.NaxtFile() // change current file position
-	self.InitList()         // re-render files list
-	ui.Render(self.List)
+	self.InitList(true)         // re-render files list
 }
 
 func (self *Display) SelectDir() {
@@ -38,20 +36,36 @@ func (self *Display) SelectDir() {
 	if err != nil {
 		return
 	}
-	self.InitList() // re-initialize list of files in display
+	self.InitList(false) // re-initialize list of files in display
 	self.List.ScrollTop()
 	ui.Render(self.List)
 }
 
-func (self *Display) InitList() {
-	// mb some more list customization
+func (self *Display) InitList(isRerender bool) {
+	if isRerender {
+		defer ui.Render(self.List)
+	}
 	self.List.Title = self.Manager.Path
 	self.List.Rows = self.Manager.RenderList()
 }
 
-func (self *Display) InputProcess(searchChan chan string) {
-    // delegate input process to `Input` object
-    self.Input.InputProcess(searchChan)
+func (self *Display) RerenderLoop(filesChan chan []string) {
+	for list := range filesChan {
+		self.List.Rows = list
+		ui.Render(self.List)
+	}
+}
+
+func (self *Display) SearchInputProcess() chan string {
+    charChan := make(chan string)
+    searchChan := make(chan string)
+    renderChan := make(chan []string)
+
+    go self.Input.InputProcess(charChan, searchChan)
+    go self.Manager.Search(searchChan, renderChan)
+    go self.RerenderLoop(renderChan)
+    
+    return charChan
 }
 
 func InitDisplay(manager *mg.Manager) *Display {
@@ -64,6 +78,6 @@ func InitDisplay(manager *mg.Manager) *Display {
 	list.TextStyle = ui.NewStyle(ui.ColorYellow)
 
 	display := &Display{list, input, manager}
-	display.InitList()
+	display.InitList(false)
 	return display
 }
