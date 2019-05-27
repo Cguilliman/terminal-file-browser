@@ -24,7 +24,7 @@ type Manager struct {
 	CurrentFileNumber int
 }
 
-// Return array of strings for render 
+// Return array of strings for render
 // *get files from manger.Files array
 func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
 	if len(fileList) == 0 {
@@ -56,7 +56,7 @@ func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
 	return response
 }
 
-// Return default current directory 
+// Return default current directory
 // and parent directory `os.FileIngo` objects list
 func (manager *Manager) defaultFiles() []os.FileInfo {
 	return []os.FileInfo{
@@ -118,7 +118,7 @@ func (manager *Manager) EnterDir() error {
 	default:
 		manager.Path = ConcatPath(manager.Path, file.Name())
 	}
-	
+
 	manager.CurrentFileNumber = 0 // reset current file number
 	manager.SetFiles()
 	return nil
@@ -127,6 +127,7 @@ func (manager *Manager) EnterDir() error {
 func (manager *Manager) Search(searchChan chan string, renderChan chan []string) {
 	manager.Searchable = manager.Files
 	for searchable := range searchChan {
+		manager.CurrentFileNumber = 0
 		manager.Files = manager.defaultFiles()
 
 		for _, obj := range manager.Searchable {

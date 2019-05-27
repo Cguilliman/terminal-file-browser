@@ -17,6 +17,10 @@ func defaultHandlers(display *display.Display, value string) bool {
 		display.PageUp()
 	case "<Enter>":
 		display.SelectDir()
+	// case "<C-o>":
+	// 	charChan := display.Op()
+	// 	WriteHandle(display, charChan)
+	// 	uiEvents = ui.PollEvents()
 	default:
 		return false
 	}
@@ -39,11 +43,11 @@ func WriteHandle(display *display.Display, searchChan chan string) {
 			switch e.ID {
 			case "<C-f>", "<C-q>":
 				display.ResetList()
-				// TODO reset input widget
+				display.ResetInput()
 				return
 			case "<Enter>":
 				display.SelectDir()
-				// TODO reset input widget
+				display.ResetInput()
 				return
 			default:
 				if !defaultHandlers(display, e.ID) {
@@ -64,7 +68,7 @@ func ActionsHandle(display *display.Display) {
 			switch e.ID {
 			case "<C-q>":
 				return
-			case "<C-f>":  // Searching
+			case "<C-f>": // Searching
 				charChan := display.SearchInputProcess()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`

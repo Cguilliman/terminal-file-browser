@@ -44,6 +44,9 @@ func (self *Input) InputProcess(charChan, searchChan chan string) {
 }
 
 func (self *Input) InputText(value string, isRerender bool) {
+	if value == "" {
+		value = DEFAULT_MESSAGE
+	}
 	self.Data = value
 	self.Reset(isRerender)
 }
@@ -55,12 +58,21 @@ func (self *Input) Reset(isRerender bool) {
 	self.Widget.Text = self.Data
 }
 
-func InitInput(isRerender bool) *Input {
+func InitInput(isRerender bool, params [4]int) *Input {
 	input := Input{
 		widgets.NewParagraph(),
 		DEFAULT_MESSAGE,
 	}
-	input.Widget.SetRect(0, 0, 80, 3)
+	if len(params) == 0 {
+		input.Widget.SetRect(0, 0, 80, 3)
+	} else {
+		input.Widget.SetRect(
+			params[0],
+			params[1],
+			params[2],
+			params[3],
+		)
+	}
 	input.Reset(isRerender)
 	return &input
 }

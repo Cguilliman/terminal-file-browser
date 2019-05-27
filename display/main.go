@@ -18,13 +18,14 @@ type DisplayInterface interface {
 	PageDown()
 	SelectDir()
 	ResetList()
+	OpenAs()
 	SearchInputProcess()
 }
 
 type Display struct {
-	List    *widgets.List
-	Input   *Input
-	Manager *mg.Manager
+	Input, OpenInput *Input
+	List             *widgets.List
+	Manager          *mg.Manager
 }
 
 func (self *Display) ListUp() {
@@ -40,15 +41,15 @@ func (self *Display) ListDown() {
 }
 
 func (self *Display) PageUp() {
-	self.List.ScrollPageUp()    // more `cursor`
+	self.List.ScrollPageUp() // more `cursor`
 	self.Manager.FirstFile() // change current file position
-	self.initList(true)     // re-render files list
+	self.initList(true)      // re-render files list
 }
 
 func (self *Display) PageDown() {
-	self.List.ScrollPageDown()  // move `cursor`
-	self.Manager.LastFile() // change current file position
-	self.initList(true)     // re-render files list
+	self.List.ScrollPageDown() // move `cursor`
+	self.Manager.LastFile()    // change current file position
+	self.initList(true)        // re-render files list
 }
 
 func (self *Display) SelectDir() {
@@ -66,6 +67,10 @@ func (self *Display) ResetList() {
 	self.initList(true)
 }
 
+func (self *Display) ResetInput() {
+	self.Input.InputText("", true)
+}
+
 func (self *Display) initList(isRerender bool) {
 	if isRerender {
 		defer ui.Render(self.List)
@@ -77,6 +82,7 @@ func (self *Display) initList(isRerender bool) {
 func (self *Display) rerenderLoop(filesChan chan []string) {
 	for list := range filesChan {
 		self.List.Rows = list
+		self.List.ScrollTop()
 		ui.Render(self.List)
 	}
 }
@@ -91,6 +97,12 @@ func (self *Display) SearchInputProcess() chan string {
 	go self.rerenderLoop(renderChan)
 
 	return charChan
+}
+
+func (self *Display) OpenAs() {
+	input := widgets.InitInput(false, []int{0, 6, 80, 3})
+	self.List.SetRect(0, 9, 80, 20)
+	defer ui.Render(self.List, input.Widget)
 }
 
 func InitDisplay(manager *mg.Manager) *Display {

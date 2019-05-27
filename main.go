@@ -30,7 +30,6 @@ func main() {
 	if err := ui.Init(); err != nil {
 		panic(err)
 	}
-	// tm.SetInputMode(tm.InputEsc)
 	defer ui.Close()
 
 	// infinite processing loop
