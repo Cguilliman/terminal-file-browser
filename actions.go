@@ -5,6 +5,25 @@ import (
 	ui "github.com/gizak/termui"
 )
 
+func defaultHandlers(display *display.Display, value string) bool {
+	switch value {
+	case "<Up>":
+		display.ListUp()
+	case "<Down>":
+		display.ListDown()
+	case "<PageDown>":
+		display.PageDown()
+	case "<PageUp>":
+		display.PageUp()
+	case "<Enter>":
+		display.SelectDir()
+	default:
+		return false
+	}
+
+	return true
+}
+
 func charDescript(char string, searchChan chan string) {
 	if char == "<Space>" {
 		char = " "
@@ -20,18 +39,17 @@ func WriteHandle(display *display.Display, searchChan chan string) {
 			switch e.ID {
 			case "<C-f>", "<C-q>":
 				display.ResetList()
+				// TODO reset input widget
 				return
-			case "<Up>":
-				display.ListUp()
-			case "<Down>":
-				display.ListDown()
 			case "<Enter>":
 				display.SelectDir()
-				// TODO reset input field
+				// TODO reset input widget
 				return
 			default:
-				eventID := e.ID
-				charDescript(eventID, searchChan)
+				if !defaultHandlers(display, e.ID) {
+					eventID := e.ID
+					charDescript(eventID, searchChan)
+				}
 			}
 		}
 	}
@@ -46,16 +64,12 @@ func ActionsHandle(display *display.Display) {
 			switch e.ID {
 			case "<C-q>":
 				return
-			case "<C-f>":
+			case "<C-f>":  // Searching
 				charChan := display.SearchInputProcess()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
-			case "<Up>":
-				display.ListUp()
-			case "<Down>":
-				display.ListDown()
-			case "<Enter>":
-				display.SelectDir()
+			default:
+				defaultHandlers(display, e.ID)
 			}
 		}
 	}

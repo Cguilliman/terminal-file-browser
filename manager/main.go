@@ -91,6 +91,16 @@ func (manager *Manager) PrevFile() {
 	}
 }
 
+// First file. Change only CurrentFileNumber param.
+func (manager *Manager) FirstFile() {
+	manager.CurrentFileNumber = 0
+}
+
+// Last file. Change only CurrentFileNumber param.
+func (manager *Manager) LastFile() {
+	manager.CurrentFileNumber = len(manager.Files) - 1
+}
+
 // Enter directory
 // change `manger.Path` as current inner director
 // inner directory files and save as `manager.Files`

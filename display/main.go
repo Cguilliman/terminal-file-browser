@@ -13,7 +13,9 @@ var (
 
 type DisplayInterface interface {
 	ListUp()
+	PageUp()
 	ListDown()
+	PageDown()
 	SelectDir()
 	ResetList()
 	SearchInputProcess()
@@ -34,6 +36,18 @@ func (self *Display) ListUp() {
 func (self *Display) ListDown() {
 	self.List.ScrollDown()  // move `cursor`
 	self.Manager.NextFile() // change current file position
+	self.initList(true)     // re-render files list
+}
+
+func (self *Display) PageUp() {
+	self.List.ScrollPageUp()    // more `cursor`
+	self.Manager.FirstFile() // change current file position
+	self.initList(true)     // re-render files list
+}
+
+func (self *Display) PageDown() {
+	self.List.ScrollPageDown()  // move `cursor`
+	self.Manager.LastFile() // change current file position
 	self.initList(true)     // re-render files list
 }
 
