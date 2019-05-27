@@ -22,10 +22,7 @@ func main() {
 		printHelp()
 		return
 	}
-
-	// initialize manager
-	manager := mg.InitManager(*pathFlag)
-
+	
 	// initialize GUI
 	if err := ui.Init(); err != nil {
 		panic(err)
@@ -33,6 +30,6 @@ func main() {
 	defer ui.Close()
 
 	// infinite processing loop
-	display := display.InitDisplay(manager)
-	ActionsHandle(display)
+	display := display.InitDisplay()
+	display.ActionsHandle(display)
 }

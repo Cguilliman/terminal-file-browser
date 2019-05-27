@@ -1,142 +1,54 @@
 package manager
 
-import (
-	"errors"
-	"io/ioutil"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-)
-
-type ManagerInterface interface {
-	RenderList() []string
-	SetFiles()
-	NextFile()
-	PrevFile()
-	EnterDir() error
-	Search(chan string, chan []string)
+type ContentListInterface interface {
+    ListUp()
+    PageUp()
+    ListDown()
+    PageDown()
+    SelectDir()
 }
 
-type Manager struct {
-	Path              string
-	Files, Searchable []os.FileInfo
-	CurrentFileNumber int
+type ContentList struct {
+    Widget *Widget
+    Manager *Manager
 }
 
-// Return array of strings for render
-// *get files from manger.Files array
-func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
-	if len(fileList) == 0 {
-		fileList = manager.Files
-	}
-	var response []string
-
-	for n, file := range fileList {
-		var fileName string
-		switch n {
-		case 0:
-			fileName = "[.(Current)](fg:blue)"
-		case 1:
-			fileName = "[..(Parent)](fg:blue)"
-		default:
-			fileName = file.Name()
-		}
-
-		row := fileName + " " + strconv.Itoa(int(file.Size()))
-		if n == manager.CurrentFileNumber {
-			row = ">> " + row
-		}
-		if file.IsDir() {
-			row = "[" + row + "](fg:blue)"
-		}
-		response = append(response, row)
-	}
-
-	return response
+func (self *ContentList) ListUp() {
+    self.List.ScrollUp()
+    self.Manager.PrevFile()
+    self.Widget.ScrollUp()
+    self.initList(true)
 }
 
-// Return default current directory
-// and parent directory `os.FileIngo` objects list
-func (manager *Manager) defaultFiles() []os.FileInfo {
-	return []os.FileInfo{
-		getFile(manager.Path),
-		getFile(ParentDirPath(manager.Path)),
-	}
+func (self *ContentList) ListDown() {
+    self.List.ScrollDown()
+    self.Manager.NextFile()
+    self.initList(true)
 }
 
-// Set files in manage.Files list of files objects
-func (manager *Manager) SetFiles() {
-	base_files := manager.defaultFiles()
-	files, err := ioutil.ReadDir(manager.Path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	files = append(base_files, files...)
-	manager.Files = files
+func (self *ContentList) PageUp() {
+    self.List.ScrollPageUp()
+    self.Manager.FirstFile()
+    self.initList(true)
 }
 
-// Next file. Change only CurrentFileNumber param.
-func (manager *Manager) NextFile() {
-	if len(manager.Files)-1 > manager.CurrentFileNumber {
-		manager.CurrentFileNumber++
-	}
+func (self *ContentList) PageDown() {
+    self.List.ScrollPageDown()
+    self.Manager.LastFile()
+    self.initList(true)
 }
 
-// Previous file. Change only CurrentFileNumber param.
-func (manager *Manager) PrevFile() {
-	if 0 < manager.CurrentFileNumber {
-		manager.CurrentFileNumber--
-	}
+func (self *ContentList) SelectDir() {
+    list, err := self.Manager.EnterDir()
+    if err != nil {
+        return
+    }
+    self.Widget.SelectDir(list)
 }
 
-// First file. Change only CurrentFileNumber param.
-func (manager *Manager) FirstFile() {
-	manager.CurrentFileNumber = 0
-}
+func (self *ContentList) SearchProcess(searchChan chan string) {
+    renderChan := make(chan []string)
 
-// Last file. Change only CurrentFileNumber param.
-func (manager *Manager) LastFile() {
-	manager.CurrentFileNumber = len(manager.Files) - 1
-}
-
-// Enter directory
-// change `manger.Path` as current inner director
-// inner directory files and save as `manager.Files`
-func (manager *Manager) EnterDir() error {
-	file := manager.Files[manager.CurrentFileNumber]
-	if !file.IsDir() {
-		return errors.New("This is file!")
-	}
-
-	switch manager.CurrentFileNumber {
-	case 0:
-		return nil
-	case 1:
-		manager.Path = ParentDirPath(manager.Path)
-	default:
-		manager.Path = ConcatPath(manager.Path, file.Name())
-	}
-
-	manager.CurrentFileNumber = 0 // reset current file number
-	manager.SetFiles()
-	return nil
-}
-
-func (manager *Manager) Search(searchChan chan string, renderChan chan []string) {
-	manager.Searchable = manager.Files
-	for searchable := range searchChan {
-		manager.CurrentFileNumber = 0
-		manager.Files = manager.defaultFiles()
-
-		for _, obj := range manager.Searchable {
-			// TODO: re-factor searching
-			if strings.Contains(obj.Name(), searchable) {
-				manager.Files = append(manager.Files, obj)
-			}
-		}
-
-		renderChan <- manager.RenderList(manager.Files)
-	}
+    go self.Manager.Search(searchChan, renderChan)
+    go self.rerenderLoop(renderChan)
 }
