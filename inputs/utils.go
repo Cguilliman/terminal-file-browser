@@ -2,8 +2,15 @@ package inputs
 
 const STYLE string = "](bg:green)"
 
-func addCursor(value string, cursor int) string {
+type Cursor struct {
+    cursor int
+    ping bool
+    value string
+}
+
+func (self *Cursor) addCursor() string {
 	if cursor > len(value) {
+        // append dynamic spaces amount
 		for n := cursor - (len(value) - 1); n != 0; n-- {
 			value = value + " "
 		}
@@ -15,6 +22,16 @@ func addCursor(value string, cursor int) string {
 	return new_string
 }
 
-func removeCursor(value string, cursor int) string {
+func (self *Cursor) removeCursor() string {
+    return self.value[:self.cursor] + self.value[self.cursor+1] + self.value[self.cursor+len(STYLE)+1]
+}
 
+func (self *Cursor) leftCursor() {
+    value = self.removeCursor()
+    self.cursor--
+    // return 
+}
+
+func (self *Cursor) rightCursor() {
+    self.cursor++
 }

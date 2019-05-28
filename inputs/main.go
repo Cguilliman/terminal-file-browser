@@ -38,10 +38,10 @@ func Init(value string, size [4]int) *Input {
 
 func (self *Input) InputProcess(charChan, responseChan chan string) {
 	var value string
+    ticker := time.NewTicker(time.Second).C
+    ping := false
+    cursor := len(value)
 	self.Value = ""
-	// var cursor int = len(value)
-	// [color](fg:white,bg:green) output -- ping style
-	ticker := time.NewTicker(time.Second).C
 
 	for {
 		select {
@@ -52,10 +52,10 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 			case char == "<C-<Backspace>>" && len(value) > 0:
 				splited := strings.Split(value, " ")
 				value = strings.Join(splited[:len(splited)-1], " ")
-			// case char == "<Left>" && cursor > 0:
-			//     cursor--
-			// case char == "<Right>" && cursor < len(value):
-			//     cursor++
+			case char == "<Left>" && cursor > 0:
+			    cursor--
+			case char == "<Right>" && cursor < len(value):
+			    cursor++
 			case len(char) > 1:
 				continue
 			default:
@@ -68,29 +68,14 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 
 			ticker = time.NewTicker(time.Second).C
 		case <-ticker:
+            if ping {
+                self.RenderChan <- removeCursor(self.Value, cursor)
+                ping = false
+            } else {
+                self.RenderChan <- addCursor(self.Value, cursor)
+                ping = true
+            }
 			// TODO
 		}
 	}
-
-	// for char := range charChan {
-	//     switch {
-	//     case char == "<Backspace>" && len(value) > 0:
-	//         value = value[:len(value)-1]
-	//     case char == "<C-<Backspace>>" && len(value) > 0:
-	//         splited := strings.Split(value, " ")
-	//         value = strings.Join(splited[:len(splited)-1], " ")
-	//     // case char == "<Left>" && cursor > 0:
-	//     //     cursor--
-	//     // case char == "<Right>" && cursor < len(value):
-	//     //     cursor++
-	//     case len(char) > 1:
-	//         continue
-	//     default:
-	//         value = value + char
-	//     }
-
-	//     self.Value = value  // set in local variable
-	//     responseChan <- value  // will return in parent channel of value
-	//     self.RenderChan <- value // will render string in input
-	// }
 }
