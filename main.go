@@ -21,7 +21,7 @@ func main() {
 		printHelp()
 		return
 	}
-	
+
 	// initialize GUI
 	if err := ui.Init(); err != nil {
 		panic(err)

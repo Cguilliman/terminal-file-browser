@@ -1,150 +1,150 @@
 package manager
 
 import (
-    "os"
-    "strconv"
-    "io/ioutil"
-    "log"
-    "errors"
-    "strings"
+	"errors"
+	"io/ioutil"
+	"log"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type Manager struct {
-    Path              string
-    Files, Searchable []os.FileInfo
-    CurrentFileNumber int
+	Path              string
+	Files, Searchable []os.FileInfo
+	CurrentFileNumber int
 }
 
 // Return array of strings for render
 // *get files from manger.Files array
 func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
-    if len(fileList) == 0 {
-        fileList = manager.Files
-    }
-    var response []string
+	if len(fileList) == 0 {
+		fileList = manager.Files
+	}
+	var response []string
 
-    for n, file := range fileList {
-        var fileName string
-        switch n {
-        case 0:
-            fileName = ".(Current)"
-        case 1:
-            fileName = "..(Parent)"
-        default:
-            fileName = file.Name()
-        }
+	for n, file := range fileList {
+		var fileName string
+		switch n {
+		case 0:
+			fileName = ".(Current)"
+		case 1:
+			fileName = "..(Parent)"
+		default:
+			fileName = file.Name()
+		}
 
-        row := fileName + " " + strconv.Itoa(int(file.Size()))
-        if n == manager.CurrentFileNumber {
-            row = ">> " + row
-        }
-        if file.IsDir() {
-            row = "[" + row + "](fg:blue)"
-        }
-        response = append(response, row)
-    }
+		row := fileName + " " + strconv.Itoa(int(file.Size()))
+		if n == manager.CurrentFileNumber {
+			row = ">> " + row
+		}
+		if file.IsDir() {
+			row = "[" + row + "](fg:blue)"
+		}
+		response = append(response, row)
+	}
 
-    return response
+	return response
 }
 
 // Return default current directory
 // and parent directory `os.FileIngo` objects list
 func (manager *Manager) defaultFiles() []os.FileInfo {
-    return []os.FileInfo{
-        getFile(manager.Path),
-        getFile(ParentDirPath(manager.Path)),
-    }
+	return []os.FileInfo{
+		getFile(manager.Path),
+		getFile(ParentDirPath(manager.Path)),
+	}
 }
 
 // Set files in manage.Files list of files objects
 func (manager *Manager) SetFiles() {
-    base_files := manager.defaultFiles()
-    files, err := ioutil.ReadDir(manager.Path)
-    if err != nil {
-        log.Fatal(err)
-    }
+	base_files := manager.defaultFiles()
+	files, err := ioutil.ReadDir(manager.Path)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    files = append(base_files, files...)
-    manager.Files = files
+	files = append(base_files, files...)
+	manager.Files = files
 }
 
 // Next file. Change only CurrentFileNumber param.
 func (manager *Manager) NextFile() []string {
-    if len(manager.Files)-1 > manager.CurrentFileNumber {
-        manager.CurrentFileNumber++
-    }
-    return manager.RenderList(nil)
+	if len(manager.Files)-1 > manager.CurrentFileNumber {
+		manager.CurrentFileNumber++
+	}
+	return manager.RenderList(nil)
 }
 
 // Previous file. Change only CurrentFileNumber param.
 func (manager *Manager) PrevFile() []string {
-    if 0 < manager.CurrentFileNumber {
-        manager.CurrentFileNumber--
-    }
-    return manager.RenderList(nil)
+	if 0 < manager.CurrentFileNumber {
+		manager.CurrentFileNumber--
+	}
+	return manager.RenderList(nil)
 }
 
 // First file. Change only CurrentFileNumber param.
 func (manager *Manager) SetFirstFile() []string {
-    manager.CurrentFileNumber = 0
-    return manager.RenderList(nil)
+	manager.CurrentFileNumber = 0
+	return manager.RenderList(nil)
 }
 
 // Last file. Change only CurrentFileNumber param.
 func (manager *Manager) SetLastFile() []string {
-    manager.CurrentFileNumber = len(manager.Files) - 1
-    return manager.RenderList(nil)
+	manager.CurrentFileNumber = len(manager.Files) - 1
+	return manager.RenderList(nil)
 }
 
 // Enter directory
 // change `manger.Path` as current inner director
 // inner directory files and save as `manager.Files`
 func (manager *Manager) EnterDir() ([]string, error) {
-    file := manager.Files[manager.CurrentFileNumber]
-    if !file.IsDir() {
-        return nil, errors.New("This is file!")
-    }
+	file := manager.Files[manager.CurrentFileNumber]
+	if !file.IsDir() {
+		return nil, errors.New("This is file!")
+	}
 
-    switch manager.CurrentFileNumber {
-    case 0:
-        return manager.RenderList(nil), nil
-    case 1:
-        manager.Path = ParentDirPath(manager.Path)
-    default:
-        manager.Path = ConcatPath(manager.Path, file.Name())
-    }
+	switch manager.CurrentFileNumber {
+	case 0:
+		return manager.RenderList(nil), nil
+	case 1:
+		manager.Path = ParentDirPath(manager.Path)
+	default:
+		manager.Path = ConcatPath(manager.Path, file.Name())
+	}
 
-    manager.CurrentFileNumber = 0
-    manager.SetFiles()
-    return manager.RenderList(nil), nil
+	manager.CurrentFileNumber = 0
+	manager.SetFiles()
+	return manager.RenderList(nil), nil
 }
 
 func (manager *Manager) Search(searchChan chan string, renderChan chan []string) {
-    manager.Searchable = manager.Files
-    for searchable := range searchChan {
-        manager.CurrentFileNumber = 0
-        manager.Files = manager.defaultFiles()
+	manager.Searchable = manager.Files
+	for searchable := range searchChan {
+		manager.CurrentFileNumber = 0
+		manager.Files = manager.defaultFiles()
 
-        for _, obj := range manager.Searchable[2:] {
-            // TODO: re-factor searching
-            if strings.Contains(obj.Name(), searchable) {
-                manager.Files = append(manager.Files, obj)
-            }
-        }
+		for _, obj := range manager.Searchable[2:] {
+			// TODO: re-factor searching
+			if strings.Contains(obj.Name(), searchable) {
+				manager.Files = append(manager.Files, obj)
+			}
+		}
 
-        renderChan <- manager.RenderList(manager.Files)
-    }
+		renderChan <- manager.RenderList(manager.Files)
+	}
 }
 
 func initManager(path string) *Manager {
-    if path == "" {
-        path = getLocalPath()
-    }
+	if path == "" {
+		path = getLocalPath()
+	}
 
-    var manager Manager
-    manager.Path = path
-    manager.SetFiles()
-    manager.CurrentFileNumber = 0
+	var manager Manager
+	manager.Path = path
+	manager.SetFiles()
+	manager.CurrentFileNumber = 0
 
-    return &manager
+	return &manager
 }

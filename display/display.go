@@ -1,32 +1,32 @@
 package display
 
 import (
-    "github.com/Cguilliman/terminal-file-browser/manager"
-    "github.com/Cguilliman/terminal-file-browser/inputs"
+	"github.com/Cguilliman/terminal-file-browser/inputs"
+	"github.com/Cguilliman/terminal-file-browser/manager"
 )
 
 type Display struct {
-    Content *manager.ContentList
-    SearchInput *inputs.Input
+	Content     *manager.ContentList
+	SearchInput *inputs.Input
 }
 
 func (self *Display) Search() chan string {
-    charChan := make(chan string)
-    searchChan := make(chan string)
+	charChan := make(chan string)
+	searchChan := make(chan string)
 
-    go self.SearchInput.InputProcess(charChan, searchChan)
-    go self.Content.SearchProcess(searchChan)
+	go self.SearchInput.InputProcess(charChan, searchChan)
+	go self.Content.SearchProcess(searchChan)
 
-    return charChan
+	return charChan
 }
 
 func InitDisplay() *Display {
-    content := manager.Init("")
-    saerchInput := inputs.Init("", [4]int{0, 0, 80, 3})
+	content := manager.Init("")
+	saerchInput := inputs.Init("", [4]int{0, 0, 80, 3})
 
-    display := &Display{
-        content, 
-        saerchInput, 
-    }
-    return display
+	display := &Display{
+		content,
+		saerchInput,
+	}
+	return display
 }

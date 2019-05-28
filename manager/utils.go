@@ -1,38 +1,38 @@
 package manager
 
 import (
-    "log"
-    "os"
-    "strings"
+	"log"
+	"os"
+	"strings"
 )
 
 func getFile(path string) os.FileInfo {
-    file, err := os.Lstat(path)
-    if err != nil {
-        log.Fatal(err.Error)
-    }
-    return file
+	file, err := os.Lstat(path)
+	if err != nil {
+		log.Fatal(err.Error)
+	}
+	return file
 }
 
 func getLocalPath() string {
-    path, err := os.Getwd()
-    if err != nil {
-        log.Fatal(err)
-    }
-    return path
+	path, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return path
 }
 
 func ConcatPath(path, file string) string {
-    if string(path[len(path)-1]) != string("/") {
-        path = path + "/"
-    }
-    return path + file
+	if string(path[len(path)-1]) != string("/") {
+		path = path + "/"
+	}
+	return path + file
 }
 
 func ParentDirPath(path string) string {
-    if string(path[len(path)-1]) == string("/") {
-        path = path[:len(path)-2]
-    }
-    dirs := strings.Split(path, "/")
-    return strings.Join(dirs[:len(dirs)-1], "/")
+	if string(path[len(path)-1]) == string("/") {
+		path = path[:len(path)-2]
+	}
+	dirs := strings.Split(path, "/")
+	return strings.Join(dirs[:len(dirs)-1], "/")
 }

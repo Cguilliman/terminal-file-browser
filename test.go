@@ -17,17 +17,17 @@ func drawFunction(input *widgets.Paragraph, new_char string) {
 }
 
 func addCursor(value string, cursor int) string {
-    if cursor > len(value) {
-        for n := cursor-(len(value)-1); n != 0; n-- {
-            value = value + " "
-        }
-    }
-    fmt.Println(value)
-    new_string := value[:cursor]+"["+string(value[cursor])+"](bg:green)"
-    if cursor < len(value) {
-    	new_string = new_string + value[cursor+1:]
-    }
-    return new_string
+	if cursor > len(value) {
+		for n := cursor - (len(value) - 1); n != 0; n-- {
+			value = value + " "
+		}
+	}
+	fmt.Println(value)
+	new_string := value[:cursor] + "[" + string(value[cursor]) + "](bg:green)"
+	if cursor < len(value) {
+		new_string = new_string + value[cursor+1:]
+	}
+	return new_string
 }
 
 func main() {
