@@ -58,7 +58,7 @@ func (self *Input) Reset(isRerender bool) {
     self.Widget.Text = self.Data
 }
 
-func InitInput(isRerender bool, params [4]int) *Input {
+func Init(isRerender bool, params [4]int) *Input {
     input := Input{
         widgets.NewParagraph(),
         DEFAULT_MESSAGE,

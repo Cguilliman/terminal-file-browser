@@ -3,8 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Cguilliman/terminal-file-browser/display"
-	mg "github.com/Cguilliman/terminal-file-browser/manager"
+	dp "github.com/Cguilliman/terminal-file-browser/display"
 	ui "github.com/gizak/termui"
 )
 
@@ -16,7 +15,7 @@ func main() {
 	// obtain and processing flags
 	var (
 		helpFlag = flag.Bool("h", false, "display help dialog")
-		pathFlag = flag.String("path", "", "path to open directory")
+		// pathFlag = flag.String("path", "", "path to open directory")
 	)
 	if *helpFlag {
 		printHelp()
@@ -29,7 +28,7 @@ func main() {
 	}
 	defer ui.Close()
 
+	display := dp.InitDisplay()
 	// infinite processing loop
-	display := display.InitDisplay()
-	display.ActionsHandle(display)
+	dp.ActionsHandle(display)
 }

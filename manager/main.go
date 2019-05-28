@@ -9,33 +9,29 @@ type ContentListInterface interface {
 }
 
 type ContentList struct {
+    RenderChan chan []string
     Widget *Widget
     Manager *Manager
 }
 
 func (self *ContentList) ListUp() {
-    self.List.ScrollUp()
     self.Manager.PrevFile()
     self.Widget.ScrollUp()
-    self.initList(true)
 }
 
 func (self *ContentList) ListDown() {
-    self.List.ScrollDown()
     self.Manager.NextFile()
-    self.initList(true)
+    self.Widget.ScrollDown()
 }
 
 func (self *ContentList) PageUp() {
-    self.List.ScrollPageUp()
-    self.Manager.FirstFile()
-    self.initList(true)
+    self.Manager.SetFirstFile()
+    self.Widget.PageUp()
 }
 
 func (self *ContentList) PageDown() {
-    self.List.ScrollPageDown()
-    self.Manager.LastFile()
-    self.initList(true)
+    self.Manager.SetLastFile()
+    self.Widget.PageDown()
 }
 
 func (self *ContentList) SelectDir() {
@@ -43,12 +39,20 @@ func (self *ContentList) SelectDir() {
     if err != nil {
         return
     }
-    self.Widget.SelectDir(list)
+    self.RenderChan <- list
 }
 
 func (self *ContentList) SearchProcess(searchChan chan string) {
     renderChan := make(chan []string)
 
     go self.Manager.Search(searchChan, renderChan)
-    go self.rerenderLoop(renderChan)
+    go self.Widget.renderLoop()
+}
+
+func Init(path string) *ContentList {
+    var content ContentList  // init contentList
+    content.Widget, content.RenderChan = initWidget()  // init widget and re-render channel 
+    content.Manager = initManager(path)  // init manager worker
+    content.RenderChan <- content.Manager.RenderList(nil)  // push current files rows in channel
+    return &content
 }

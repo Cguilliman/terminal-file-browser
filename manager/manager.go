@@ -3,6 +3,10 @@ package manager
 import (
     "os"
     "strconv"
+    "io/ioutil"
+    "log"
+    "errors"
+    "strings"
 )
 
 type Manager struct {
@@ -79,12 +83,12 @@ func (manager *Manager) PrevFile() {
 }
 
 // First file. Change only CurrentFileNumber param.
-func (manager *Manager) FirstFile() {
+func (manager *Manager) SetFirstFile() {
     manager.CurrentFileNumber = 0
 }
 
 // Last file. Change only CurrentFileNumber param.
-func (manager *Manager) LastFile() {
+func (manager *Manager) SetLastFile() {
     manager.CurrentFileNumber = len(manager.Files) - 1
 }
 
@@ -94,7 +98,7 @@ func (manager *Manager) LastFile() {
 func (manager *Manager) EnterDir() ([]string, error) {
     file := manager.Files[manager.CurrentFileNumber]
     if !file.IsDir() {
-        return errors.New("This is file!")
+        return nil, errors.New("This is file!")
     }
 
     switch manager.CurrentFileNumber {
@@ -126,4 +130,17 @@ func (manager *Manager) Search(searchChan chan string, renderChan chan []string)
 
         renderChan <- manager.RenderList(manager.Files)
     }
+}
+
+func initManager(path string) *Manager {
+    if path == "" {
+        path = getLocalPath()
+    }
+
+    var manager Manager
+    manager.Path = path
+    manager.SetFiles()
+    manager.CurrentFileNumber = 0
+
+    return &manager
 }
