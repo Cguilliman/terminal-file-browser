@@ -15,23 +15,23 @@ type ContentList struct {
 }
 
 func (self *ContentList) ListUp() {
-    self.Manager.PrevFile()
-    self.Widget.ScrollUp()
+    self.Widget.Up()
+    self.RenderChan <- self.Manager.PrevFile()
 }
 
 func (self *ContentList) ListDown() {
-    self.Manager.NextFile()
-    self.Widget.ScrollDown()
+    self.Widget.Down()
+    self.RenderChan <- self.Manager.NextFile()
 }
 
 func (self *ContentList) PageUp() {
-    self.Manager.SetFirstFile()
     self.Widget.PageUp()
+    self.RenderChan <- self.Manager.SetFirstFile()
 }
 
 func (self *ContentList) PageDown() {
-    self.Manager.SetLastFile()
     self.Widget.PageDown()
+    self.RenderChan <- self.Manager.SetLastFile()
 }
 
 func (self *ContentList) Reset() {
@@ -44,6 +44,7 @@ func (self *ContentList) SelectDir() {
     if err != nil {
         return
     }
+    self.Widget.GoTop()
     self.RenderChan <- list
 }
 

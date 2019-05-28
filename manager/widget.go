@@ -14,28 +14,28 @@ func (self *Widget) Render(isRender bool) {
     ui.Render(self.widget)
 }
 
-func (self *Widget) ScrollUp() {
+func (self *Widget) Up() {
     self.widget.ScrollUp()
-    self.Render(true)
 }
 
-func (self *Widget) ScrollDown() {
+func (self *Widget) Down() {
     self.widget.ScrollDown()
-    self.Render(true)
 }
 
 func (self *Widget) PageUp() {
     self.widget.ScrollPageUp()
-    self.Render(true)
 }
 
 func (self *Widget) PageDown() {
     self.widget.ScrollPageDown()
-    self.Render(true)
+}
+
+func (self *Widget) GoTop() {
+    self.widget.ScrollTop()
 }
 
 func (self *Widget) SelectDir(rows []string) {
-    self.widget.ScrollTop()
+    self.GoTop()
     self.widget.Rows = rows
     self.Render(true)
 }
@@ -43,7 +43,6 @@ func (self *Widget) SelectDir(rows []string) {
 func (self *Widget) renderLoop() {
     for list := range self.renderChan {
         self.widget.Rows = list
-        self.widget.ScrollTop()
         self.Render(true)
     }
 }

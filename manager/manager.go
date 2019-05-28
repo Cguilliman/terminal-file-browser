@@ -27,9 +27,9 @@ func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
         var fileName string
         switch n {
         case 0:
-            fileName = "[.(Current)](fg:blue)"
+            fileName = ".(Current)"
         case 1:
-            fileName = "[..(Parent)](fg:blue)"
+            fileName = "..(Parent)"
         default:
             fileName = file.Name()
         }
@@ -69,27 +69,31 @@ func (manager *Manager) SetFiles() {
 }
 
 // Next file. Change only CurrentFileNumber param.
-func (manager *Manager) NextFile() {
+func (manager *Manager) NextFile() []string {
     if len(manager.Files)-1 > manager.CurrentFileNumber {
         manager.CurrentFileNumber++
     }
+    return manager.RenderList(nil)
 }
 
 // Previous file. Change only CurrentFileNumber param.
-func (manager *Manager) PrevFile() {
+func (manager *Manager) PrevFile() []string {
     if 0 < manager.CurrentFileNumber {
         manager.CurrentFileNumber--
     }
+    return manager.RenderList(nil)
 }
 
 // First file. Change only CurrentFileNumber param.
-func (manager *Manager) SetFirstFile() {
+func (manager *Manager) SetFirstFile() []string {
     manager.CurrentFileNumber = 0
+    return manager.RenderList(nil)
 }
 
 // Last file. Change only CurrentFileNumber param.
-func (manager *Manager) SetLastFile() {
+func (manager *Manager) SetLastFile() []string {
     manager.CurrentFileNumber = len(manager.Files) - 1
+    return manager.RenderList(nil)
 }
 
 // Enter directory
