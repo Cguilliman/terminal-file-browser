@@ -34,6 +34,11 @@ func (self *ContentList) PageDown() {
     self.Widget.PageDown()
 }
 
+func (self *ContentList) Reset() {
+    self.Manager.SetFiles()
+    self.RenderChan <- self.Manager.RenderList(nil)
+}
+
 func (self *ContentList) SelectDir() {
     list, err := self.Manager.EnterDir()
     if err != nil {
@@ -43,10 +48,7 @@ func (self *ContentList) SelectDir() {
 }
 
 func (self *ContentList) SearchProcess(searchChan chan string) {
-    renderChan := make(chan []string)
-
-    go self.Manager.Search(searchChan, renderChan)
-    go self.Widget.renderLoop()
+    go self.Manager.Search(searchChan, self.RenderChan)
 }
 
 func Init(path string) *ContentList {

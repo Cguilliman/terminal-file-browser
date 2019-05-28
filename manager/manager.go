@@ -121,7 +121,7 @@ func (manager *Manager) Search(searchChan chan string, renderChan chan []string)
         manager.CurrentFileNumber = 0
         manager.Files = manager.defaultFiles()
 
-        for _, obj := range manager.Searchable {
+        for _, obj := range manager.Searchable[2:] {
             // TODO: re-factor searching
             if strings.Contains(obj.Name(), searchable) {
                 manager.Files = append(manager.Files, obj)
