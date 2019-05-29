@@ -17,7 +17,7 @@ type Cursor struct {
 }
 
 // will add cursor style and send value in render channel
-func (self *Cursor) AddCursor(isSend bool) string {
+func (self *Cursor) addCursor(isSend bool) string {
 	if self.Index >= len(self.blankValue) {
 		// append dynamic spaces amount
 		for n := self.Index - (len(self.blankValue) - 1); n != 0; n-- {
@@ -42,7 +42,7 @@ func (self *Cursor) AddCursor(isSend bool) string {
 }
 
 // will remove cursor style and send value in render channel
-func (self *Cursor) RemoveCursor(isSend bool) string {
+func (self *Cursor) removeCursor(isSend bool) string {
 	if isSend {
 		self.renderChan <- self.blankValue
 	}
@@ -70,22 +70,22 @@ func (self *Cursor) Move(index int, newValue string) {
 
 func (self *Cursor) ping() {
 	if self.isPing {
-		self.RemoveCursor(true)
+		self.removeCursor(true)
 		self.isPing = false
 	} else {
-		self.AddCursor(true)
+		self.addCursor(true)
 		self.isPing = true
 	}
 }
 
 // pinging process
-func (self *Cursor) Pinging() {
+func (self *Cursor) pinging() {
 	ticker := time.NewTicker(time.Second / 2).C
 	for {
 		select {
 		case value, ok := <-self.pingingChan:
 			self.blankValue = value
-			self.AddCursor(true)
+			self.addCursor(true)
 			ticker = time.NewTicker(time.Second / 2).C
 			if !ok {
 				return
@@ -111,6 +111,6 @@ func DefaultCursor(renderChan chan string, value string) *Cursor {
 		isPing:      false,
 		blankValue:  value,
 	}
-	go obj.Pinging()
+	go obj.pinging()
 	return &obj
 }
