@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"reflect"
 	ui "github.com/gizak/termui"
 	"github.com/gizak/termui/widgets"
 )
@@ -16,7 +17,7 @@ var (
 )
 
 type UpdateData struct {
-	list []string
+	list    []string
 	command string
 }
 
@@ -47,6 +48,20 @@ func (self *Widget) PageDown() {
 
 func (self *Widget) GoTop() {
 	self.widget.ScrollTop()
+}
+
+func (self *Widget) Resize(size [4]int) {
+	// var args []reflect.Value
+	// for _, arg := range size {
+	// 	args = append(args, reflect.ValueOf(size))
+	// }
+	// reflect.ValueOf(self.widget.SetRect).Call(args)
+	self.widget.SetRect(
+		size[0],
+		size[1],
+		size[2],
+		size[3],
+	)
 }
 
 func (self *Widget) SelectDir(rows []string) {

@@ -5,6 +5,11 @@ import (
 	"github.com/Cguilliman/terminal-file-browser/manager"
 )
 
+const (
+	SEARCH string = "search"
+	RUN    string = "run"
+)
+
 type Display struct {
 	Content      *manager.ContentList
 	SearchInput  *inputs.Input
@@ -13,15 +18,11 @@ type Display struct {
 }
 
 func (self *Display) Submit(charChan chan string) bool {
-	// TODO re-factor
-	if self.currentFocus == "search" {
+	if self.currentFocus == SEARCH {
 		self.Content.SelectDir()
-		// self.SearchInput.Reset()
 		close(charChan)
 		return true
-	} else if self.currentFocus == "run" {
-		// self.Content.SelectDir()
-		// self.RunInput.Reset()
+	} else if self.currentFocus == RUN {
 		close(charChan)
 		return true
 	}
@@ -29,7 +30,7 @@ func (self *Display) Submit(charChan chan string) bool {
 }
 
 func (self *Display) Search() chan string {
-	self.currentFocus = "search"
+	self.currentFocus = SEARCH
 	charChan := make(chan string)
 	searchChan := make(chan string)
 
@@ -40,12 +41,14 @@ func (self *Display) Search() chan string {
 }
 
 func (self *Display) Run() chan string {
-	self.currentFocus = "run"
+	self.currentFocus = RUN
 	charChan := make(chan string)
 	runChan := make(chan string)
 
 	self.RunInput = inputs.Init("", [4]int{0, 3, 80, 3})
+	self.Content.Widget.Move([4]int{0, 6, 80, 20})
 	go self.RunInput.InputProcess(charChan, runChan)
+	go manager.Run(self.Content.Manager)
 
 	return charChan
 }

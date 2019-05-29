@@ -119,6 +119,16 @@ func (manager *Manager) EnterDir() ([]string, error) {
 	return manager.RenderList(nil), nil
 }
 
+func (manager *Manager) GetDirPath(number int) {
+	if number < 0 {
+		number = manager.CurrentFileNumber
+	}
+	return ConcatPath(
+		manager.Path, 
+		manager.Files[number].Name(),
+	)
+}
+
 func (manager *Manager) Search(searchChan chan string, renderChan chan UpdateData) {
 	manager.Searchable = manager.Files
 	for searchable := range searchChan {

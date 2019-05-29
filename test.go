@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	// "os/exec"
 	// "strings"
 	// ui "github.com/gizak/termui"
 	// "github.com/gizak/termui/widgets"
@@ -31,10 +31,12 @@ import (
 // }
 
 func main() {
-	a := map[string]interface{}{
-		"s": func(a string) { fmt.Println(a) },
-	}
-	a["s"].(func(string))("ssss")
+	// cmd := exec.Command("subl", "/home/guilliman/proj/works/tickets/")
+	// _ = cmd.Run()
+	
+	// if err != nil {
+		
+	// }
 	// if err := ui.Init(); err != nil {
 	// 	panic(err)
 	// }

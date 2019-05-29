@@ -16,14 +16,14 @@ type ContentList struct {
 
 func (self *ContentList) ListUp() {
 	self.RenderChan <- UpdateData{
-		self.Manager.PrevFile(), 
+		self.Manager.PrevFile(),
 		"UP",
 	}
 }
 
 func (self *ContentList) ListDown() {
 	self.RenderChan <- UpdateData{
-		self.Manager.NextFile(), 
+		self.Manager.NextFile(),
 		"DOWN",
 	}
 }
@@ -37,7 +37,7 @@ func (self *ContentList) PageUp() {
 
 func (self *ContentList) PageDown() {
 	self.RenderChan <- UpdateData{
-		self.Manager.SetLastFile(), 
+		self.Manager.SetLastFile(),
 		"PAGEDOWN",
 	}
 }
@@ -61,9 +61,9 @@ func (self *ContentList) SearchProcess(searchChan chan string) {
 }
 
 func Init(path string) *ContentList {
-	var content ContentList                               // init contentList
-	content.Widget, content.RenderChan = initWidget()     // init widget and re-render channel
-	content.Manager = initManager(path)                   // init manager worker
+	var content ContentList                                               // init contentList
+	content.Widget, content.RenderChan = initWidget()                     // init widget and re-render channel
+	content.Manager = initManager(path)                                   // init manager worker
 	content.RenderChan <- UpdateData{content.Manager.RenderList(nil), ""} // push current files rows in channel
 	return &content
 }
