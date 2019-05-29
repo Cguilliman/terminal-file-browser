@@ -1,7 +1,7 @@
 package inputs
 
 import (
-    "strings"
+	"strings"
 )
 
 const DEFAULT_MESSAGE string = "Input field"
@@ -56,45 +56,45 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 		case char == "<C-<Backspace>>" && cursor.Index > 0:
 			splited := strings.Split(self.Value[:cursor.Index-1], " ")
 			newValue := strings.Join(splited[:len(splited)-1], " ")
-            // mb add space before deleted pattern
-            if cursor.Index < len(self.Value) {
-                self.Value = newValue + self.Value[cursor.Index:]
-            } else {
-                self.Value = newValue
-            }
-            cursor.Move(
-                len(newValue), 
-                self.Value,
-            )
-        case char == "<Delete>" && cursor.Index < len(self.Value):
-            if cursor.Index > 0 {
-                self.Value = strings.Join([]string{
-                    self.Value[:cursor.Index],
-                    self.Value[cursor.Index+1:],
-                }, "")
-            } else if len(self.Value) > 1 {
-                self.Value = self.Value[cursor.Index+1:]
-            } else {
-                self.Value = ""
-            }
-            cursor.Move(
-                cursor.Index,
-                self.Value,
-            )
-        // case char == "<C-<Delete>>" && cursor.Index < len(self.Value):
-            // splited := strings.Split(self.Value[cursor.Index:], " ")
-            // newValue := strings.Join(splited[len(splited)+1:], " ")
-            // // do something with spaces in end and start
-            // if cursor.Index > 0 {
-            //     self.Value = self.Value[:cursor.Index] + newValue
-            // } else {
-            //     self.Value = newValue
-            // }
-            // cursor.Move(
-            //     cursor.Index,
-            //     self.Value,
-            // )
-            // cursor.LeftCursor(self.Value)
+			// mb add space before deleted pattern
+			if cursor.Index < len(self.Value) {
+				self.Value = newValue + self.Value[cursor.Index:]
+			} else {
+				self.Value = newValue
+			}
+			cursor.Move(
+				len(newValue),
+				self.Value,
+			)
+		case char == "<Delete>" && cursor.Index < len(self.Value):
+			if cursor.Index > 0 {
+				self.Value = strings.Join([]string{
+					self.Value[:cursor.Index],
+					self.Value[cursor.Index+1:],
+				}, "")
+			} else if len(self.Value) > 1 {
+				self.Value = self.Value[cursor.Index+1:]
+			} else {
+				self.Value = ""
+			}
+			cursor.Move(
+				cursor.Index,
+				self.Value,
+			)
+			// case char == "<C-<Delete>>" && cursor.Index < len(self.Value):
+			// splited := strings.Split(self.Value[cursor.Index:], " ")
+			// newValue := strings.Join(splited[len(splited)+1:], " ")
+			// // do something with spaces in end and start
+			// if cursor.Index > 0 {
+			//     self.Value = self.Value[:cursor.Index] + newValue
+			// } else {
+			//     self.Value = newValue
+			// }
+			// cursor.Move(
+			//     cursor.Index,
+			//     self.Value,
+			// )
+			// cursor.LeftCursor(self.Value)
 		case char == "<Left>" && cursor.Index > 0:
 			cursor.LeftCursor(self.Value)
 		case char == "<Right>" && cursor.Index < len(self.Value):

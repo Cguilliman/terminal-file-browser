@@ -10,8 +10,8 @@ const STYLE string = "](bg:green)"
 
 type Cursor struct {
 	Index       int
-    pingingChan chan string
-    renderChan  chan string
+	pingingChan chan string
+	renderChan  chan string
 	isPing      bool
 	blankValue  string
 }
@@ -60,12 +60,12 @@ func (self *Cursor) LeftCursor(newValue string) {
 // add it in value and send in render channel
 func (self *Cursor) RightCursor(newValue string) {
 	// add guard
-    self.Move(self.Index+1, newValue)
+	self.Move(self.Index+1, newValue)
 }
 
 func (self *Cursor) Move(index int, newValue string) {
-    self.Index = index
-    self.pingingChan <- newValue
+	self.Index = index
+	self.pingingChan <- newValue
 }
 
 func (self *Cursor) ping() {
@@ -106,8 +106,8 @@ func DefaultCursor(renderChan chan string, value string) *Cursor {
 	pingingChan := make(chan string)
 	obj := Cursor{
 		Index:       len(value),
-        renderChan:  renderChan,
-        pingingChan: pingingChan,
+		renderChan:  renderChan,
+		pingingChan: pingingChan,
 		isPing:      false,
 		blankValue:  value,
 	}
