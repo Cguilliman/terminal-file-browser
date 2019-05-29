@@ -119,7 +119,7 @@ func (manager *Manager) EnterDir() ([]string, error) {
 	return manager.RenderList(nil), nil
 }
 
-func (manager *Manager) Search(searchChan chan string, renderChan chan []string) {
+func (manager *Manager) Search(searchChan chan string, renderChan chan UpdateData) {
 	manager.Searchable = manager.Files
 	for searchable := range searchChan {
 		manager.CurrentFileNumber = 0
@@ -132,7 +132,10 @@ func (manager *Manager) Search(searchChan chan string, renderChan chan []string)
 			}
 		}
 
-		renderChan <- manager.RenderList(manager.Files)
+		renderChan <- UpdateData{
+			manager.RenderList(manager.Files),
+			"GOTOP",
+		}
 	}
 	close(renderChan)
 }

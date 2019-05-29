@@ -30,7 +30,7 @@ func charDescript(char string, searchChan chan string) {
 	searchChan <- char
 }
 
-func WriteHandle(display *Display, searchChan chan string) {
+func WriteHandle(display *Display, charChan chan string) {
 	uiEvents := ui.PollEvents()
 
 	for e := range uiEvents {
@@ -39,17 +39,16 @@ func WriteHandle(display *Display, searchChan chan string) {
 			case "<C-f>", "<C-q>":
 				display.Content.Reset()
 				display.SearchInput.Reset()
-				close(searchChan)
+				close(charChan)
 				return
 			case "<Enter>":
-				display.Content.SelectDir()
-				display.SearchInput.Reset()
-				close(searchChan)
-				return
+				if display.Submit(charChan) {
+					return
+				}
 			default:
 				if !defaultHandlers(display, e.ID) {
 					eventID := e.ID
-					charDescript(eventID, searchChan)
+					charDescript(eventID, charChan)
 				}
 			}
 		}
@@ -65,6 +64,10 @@ func ActionsHandle(display *Display) {
 			switch e.ID {
 			case "<C-q>":
 				return
+			case "<C-r>":
+				charChan := display.Run()
+				WriteHandle(display, charChan)
+				uiEvents = ui.PollEvents() // KOSTIL`
 			case "<C-f>": // Searching
 				charChan := display.Search()
 				WriteHandle(display, charChan)

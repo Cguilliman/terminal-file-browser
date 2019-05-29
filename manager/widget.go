@@ -5,8 +5,23 @@ import (
 	"github.com/gizak/termui/widgets"
 )
 
+var (
+	COMMANDS map[string]func(*Widget) = map[string]func(*Widget){
+		"UP":       func(widget *Widget) { widget.Up() },
+		"DOWN":     func(widget *Widget) { widget.Down() },
+		"PAGEUP":   func(widget *Widget) { widget.PageUp() },
+		"PAGEDOWN": func(widget *Widget) { widget.PageDown() },
+		"GOTOP":    func(widget *Widget) { widget.GoTop() },
+	}
+)
+
+type UpdateData struct {
+	list []string
+	command string
+}
+
 type Widget struct {
-	renderChan chan []string
+	renderChan chan UpdateData
 	widget     *widgets.List
 }
 
@@ -41,14 +56,22 @@ func (self *Widget) SelectDir(rows []string) {
 }
 
 func (self *Widget) renderLoop() {
-	for list := range self.renderChan {
-		self.widget.Rows = list
+	for item := range self.renderChan {
+		if item.command != "" {
+			self.runCommand(item.command)
+		}
+		self.widget.Rows = item.list
 		self.Render(true)
 	}
 }
 
-func initWidget() (*Widget, chan []string) {
-	renderChan := make(chan []string)
+func (self *Widget) runCommand(command string) {
+	// TODO add command validation
+	COMMANDS[command](self)
+}
+
+func initWidget() (*Widget, chan UpdateData) {
+	renderChan := make(chan UpdateData)
 
 	obj := Widget{renderChan, widgets.NewList()}
 	obj.widget.SetRect(0, 3, 80, 20)

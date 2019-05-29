@@ -9,34 +9,42 @@ type ContentListInterface interface {
 }
 
 type ContentList struct {
-	RenderChan chan []string
+	RenderChan chan UpdateData
 	Widget     *Widget
 	Manager    *Manager
 }
 
 func (self *ContentList) ListUp() {
-	self.Widget.Up()
-	self.RenderChan <- self.Manager.PrevFile()
+	self.RenderChan <- UpdateData{
+		self.Manager.PrevFile(), 
+		"UP",
+	}
 }
 
 func (self *ContentList) ListDown() {
-	self.Widget.Down()
-	self.RenderChan <- self.Manager.NextFile()
+	self.RenderChan <- UpdateData{
+		self.Manager.NextFile(), 
+		"DOWN",
+	}
 }
 
 func (self *ContentList) PageUp() {
-	self.Widget.PageUp()
-	self.RenderChan <- self.Manager.SetFirstFile()
+	self.RenderChan <- UpdateData{
+		self.Manager.SetFirstFile(),
+		"PAGEUP",
+	}
 }
 
 func (self *ContentList) PageDown() {
-	self.Widget.PageDown()
-	self.RenderChan <- self.Manager.SetLastFile()
+	self.RenderChan <- UpdateData{
+		self.Manager.SetLastFile(), 
+		"PAGEDOWN",
+	}
 }
 
 func (self *ContentList) Reset() {
 	self.Manager.SetFiles()
-	self.RenderChan <- self.Manager.RenderList(nil)
+	self.RenderChan <- UpdateData{self.Manager.RenderList(nil), ""}
 }
 
 func (self *ContentList) SelectDir() {
@@ -44,18 +52,18 @@ func (self *ContentList) SelectDir() {
 	if err != nil {
 		return
 	}
-	self.Widget.GoTop()
-	self.RenderChan <- list
+	self.RenderChan <- UpdateData{list, "GOTOP"}
 }
 
 func (self *ContentList) SearchProcess(searchChan chan string) {
-	go self.Manager.Search(searchChan, self.RenderChan)
+	self.Manager.Search(searchChan, self.RenderChan)
+	self.Widget.GoTop()
 }
 
 func Init(path string) *ContentList {
 	var content ContentList                               // init contentList
 	content.Widget, content.RenderChan = initWidget()     // init widget and re-render channel
 	content.Manager = initManager(path)                   // init manager worker
-	content.RenderChan <- content.Manager.RenderList(nil) // push current files rows in channel
+	content.RenderChan <- UpdateData{content.Manager.RenderList(nil), ""} // push current files rows in channel
 	return &content
 }

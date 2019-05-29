@@ -62,6 +62,7 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 			} else {
 				self.Value = newValue
 			}
+
 			cursor.Move(
 				len(newValue),
 				self.Value,
@@ -77,24 +78,11 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 			} else {
 				self.Value = ""
 			}
+
 			cursor.Move(
 				cursor.Index,
 				self.Value,
 			)
-			// case char == "<C-<Delete>>" && cursor.Index < len(self.Value):
-			// splited := strings.Split(self.Value[cursor.Index:], " ")
-			// newValue := strings.Join(splited[len(splited)+1:], " ")
-			// // do something with spaces in end and start
-			// if cursor.Index > 0 {
-			//     self.Value = self.Value[:cursor.Index] + newValue
-			// } else {
-			//     self.Value = newValue
-			// }
-			// cursor.Move(
-			//     cursor.Index,
-			//     self.Value,
-			// )
-			// cursor.LeftCursor(self.Value)
 		case char == "<Left>" && cursor.Index > 0:
 			cursor.LeftCursor(self.Value)
 		case char == "<Right>" && cursor.Index < len(self.Value):
@@ -107,6 +95,7 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 				char,
 				self.Value[cursor.Index:],
 			}, "")
+
 			cursor.RightCursor(self.Value)
 		}
 
