@@ -6,10 +6,7 @@ import (
 	// "github.com/gizak/termui/widgets"
 )
 
-const (
-	DEFAULT_MESSAGE string = "Input field"
-	// PINGIN_CHAR string = "|"
-)
+const DEFAULT_MESSAGE string = "Input field"
 
 type Input struct {
 	RenderChan chan string
@@ -37,45 +34,55 @@ func Init(value string, size [4]int) *Input {
 }
 
 func (self *Input) InputProcess(charChan, responseChan chan string) {
-	var value string
-    ticker := time.NewTicker(time.Second).C
-    ping := false
-    cursor := len(value)
 	self.Value = ""
+	cursor := DefaultCursor(
+		self.RenderChan,
+		self.Value,
+	)
+	defer cursor.Disable()
+	defer self.Reset()
 
-	for {
-		select {
-		case char := <-charChan:
-			switch {
-			case char == "<Backspace>" && len(value) > 0:
-				value = value[:len(value)-1]
-			case char == "<C-<Backspace>>" && len(value) > 0:
-				splited := strings.Split(value, " ")
-				value = strings.Join(splited[:len(splited)-1], " ")
-			case char == "<Left>" && cursor > 0:
-			    cursor--
-			case char == "<Right>" && cursor < len(value):
-			    cursor++
-			case len(char) > 1:
-				continue
-			default:
-				value = value + char
+	for char := range charChan {
+		switch {
+		case char == "<Backspace>" && cursor.Index > 0:
+			if cursor.Index < len(self.Value) {
+				self.Value = strings.Join([]string{
+					self.Value[:cursor.Index-1],
+					self.Value[cursor.Index:],
+				}, "")
+			} else {
+				self.Value = self.Value[:len(self.Value)-1]
 			}
 
-			self.Value = value       // set in local variable
-			responseChan <- value    // will return in parent channel of value
-			self.RenderChan <- value // will render string in input
-
-			ticker = time.NewTicker(time.Second).C
-		case <-ticker:
-            if ping {
-                self.RenderChan <- removeCursor(self.Value, cursor)
-                ping = false
+			cursor.LeftCursor(self.Value)
+		case char == "<C-<Backspace>>" && cursor.Index > 0:
+			splited := strings.Split(self.Value[:cursor.Index-1], " ")
+			newValue := strings.Join(splited[:len(splited)-1], " ")
+            // mb add spate before deleted pattern
+            if cursor.Index < len(self.Value) {
+                self.Value = newValue + self.Value[cursor.Index:]
             } else {
-                self.RenderChan <- addCursor(self.Value, cursor)
-                ping = true
+                self.Value = newValue
             }
-			// TODO
+            cursor.Move(
+                len(newValue), 
+                self.Value,
+            )
+		case char == "<Left>" && cursor.Index > 0:
+			cursor.LeftCursor(self.Value)
+		case char == "<Right>" && cursor.Index < len(self.Value):
+			cursor.RightCursor(self.Value)
+		case len(char) > 1:
+			continue
+		default:
+			self.Value = strings.Join([]string{
+				self.Value[:cursor.Index],
+				char,
+				self.Value[cursor.Index:],
+			}, "")
+			cursor.RightCursor(self.Value)
 		}
+
+		responseChan <- self.Value // will return in parent channel of value
 	}
 }

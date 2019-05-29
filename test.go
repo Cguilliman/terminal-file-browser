@@ -59,6 +59,7 @@ func main() {
 				}
 				drawFunction(input, eventID)
 			}
+			ticker = time.NewTicker(time.Second).C
 		case <-ticker:
 			drawFunction(input, "_")
 		}

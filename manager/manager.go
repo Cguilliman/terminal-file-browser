@@ -134,6 +134,7 @@ func (manager *Manager) Search(searchChan chan string, renderChan chan []string)
 
 		renderChan <- manager.RenderList(manager.Files)
 	}
+	close(renderChan)
 }
 
 func initManager(path string) *Manager {

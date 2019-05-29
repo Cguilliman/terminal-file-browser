@@ -39,10 +39,12 @@ func WriteHandle(display *Display, searchChan chan string) {
 			case "<C-f>", "<C-q>":
 				display.Content.Reset()
 				display.SearchInput.Reset()
+				close(searchChan)
 				return
 			case "<Enter>":
 				display.Content.SelectDir()
 				display.SearchInput.Reset()
+				close(searchChan)
 				return
 			default:
 				if !defaultHandlers(display, e.ID) {
