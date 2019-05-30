@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-    "strings"
+	"strings"
 )
 
 func Zipping(zipChan chan string, content *ContentList) {
@@ -27,9 +27,9 @@ func Zipping(zipChan chan string, content *ContentList) {
 	} else {
 		files = []string{targetPath}
 	}
-    for n, path := range files {
-        files[n] = strings.Replace(path, content.Manager.Path+"/", "", 1)
-    }
+	for n, path := range files {
+		files[n] = strings.Replace(path, content.Manager.Path+"/", "", 1)
+	}
 	// TODO print errors in some GUI block
 	if err := MakeArchive(filePath, files); err != nil {
 		fmt.Println(err)

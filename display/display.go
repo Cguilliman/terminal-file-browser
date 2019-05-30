@@ -42,7 +42,7 @@ func (self *Display) Search() chan string {
 
 func (self *Display) Run() chan string {
 	return Command(
-		self, 
+		self,
 		func(runChan chan string, content *manager.ContentList) {
 			manager.Run(runChan, content.Manager)
 		},
