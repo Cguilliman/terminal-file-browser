@@ -3,13 +3,11 @@ package manager
 import (
     "os/exec"
     "strings"
-    "fmt"
 )
 
 // run command on the system
 func runCommand(command string, args ...string) {
     // NOTE: is not tracking output, only execute
-    fmt.Println(command, args)
     cmd := exec.Command(command, args...)
     cmd.Run()
 }

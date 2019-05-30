@@ -25,6 +25,7 @@ func (self *Input) InputProcess(charChan, responseChan chan string, isClose bool
 	if isClose {
 		defer close(responseChan)
 	}
+	defer self.Widget.Render()
 	defer cursor.Disable()
 	defer self.Reset()
 

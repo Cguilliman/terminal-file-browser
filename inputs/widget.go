@@ -24,19 +24,23 @@ func (self *Widget) renderLoop() {
 	self.isRun = false
 }
 
+func (self *Widget) Resize(size [4]int) {
+	self.widget.SetRect(
+		size[0],
+		size[1],
+		size[2],
+		size[3],
+	)
+}
+
 func initWidget(size [4]int) (chan string, *Widget) {
 	renderChan := make(chan string)
 	obj := Widget{renderChan, false, widgets.NewParagraph()}
 
 	if len(size) == 0 {
-		obj.widget.SetRect(0, 0, 80, 3)
+		obj.Resize([4]int{0, 0, 80, 3})
 	} else {
-		obj.widget.SetRect(
-			size[0],
-			size[1],
-			size[2],
-			size[3],
-		)
+		obj.Resize(size)
 	}
 
 	go obj.renderLoop()

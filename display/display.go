@@ -45,10 +45,26 @@ func (self *Display) Run() chan string {
 	charChan := make(chan string)
 	runChan := make(chan string)
 
-	self.RunInput = inputs.Init("a", [4]int{0, 20, 80, 23})
+	if self.RunInput == nil {
+		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
+	}
 	// self.Content.Widget.Resize([4]int{0, 6, 80, 23})
 	go self.RunInput.InputProcess(charChan, runChan, true)
 	go manager.Run(self.Content.Manager, runChan)
+
+	return charChan
+}
+
+func (self *Display) MkDir() chan string {
+	self.currentFocus = RUN
+	charChan := make(chan string)
+	runChan := make(chan string)
+
+	if self.RunInput == nil {
+		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
+	}
+	go self.RunInput.InputProcess(charChan, runChan, true)
+	go CreateDir(runChan, self.Content)
 
 	return charChan
 }
