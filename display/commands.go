@@ -6,7 +6,12 @@ import (
     mg "github.com/Cguilliman/terminal-file-browser/manager"
 )
 
-func CreateDir(nameChan chan string, content *mg.ContentList) {
+const (
+    TOUCH string = "touch"
+    MKDIR string = "mkdir"
+)
+
+func SimpleRun(command string, nameChan chan string, content *mg.ContentList) {
     var path string
 
     for value := range nameChan {
@@ -20,7 +25,15 @@ func CreateDir(nameChan chan string, content *mg.ContentList) {
         }, sep)
     }
 
-    cmd := exec.Command("mkdir", path)
+    cmd := exec.Command(command, path)
     cmd.Run()
     content.Reset()
+}
+
+func CreateDir(nameChan chan string, content *mg.ContentList) {
+    SimpleRun(MKDIR, nameChan, content)
+}
+
+func CreateFile(nameChan chan string, content *mg.ContentList) {
+    SimpleRun(TOUCH, nameChan, content)
 }

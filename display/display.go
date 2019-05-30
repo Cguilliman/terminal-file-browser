@@ -48,7 +48,6 @@ func (self *Display) Run() chan string {
 	if self.RunInput == nil {
 		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
 	}
-	// self.Content.Widget.Resize([4]int{0, 6, 80, 23})
 	go self.RunInput.InputProcess(charChan, runChan, true)
 	go manager.Run(self.Content.Manager, runChan)
 
@@ -65,6 +64,20 @@ func (self *Display) MkDir() chan string {
 	}
 	go self.RunInput.InputProcess(charChan, runChan, true)
 	go CreateDir(runChan, self.Content)
+
+	return charChan
+}
+
+func (self *Display) Touch() chan string {
+	self.currentFocus = RUN
+	charChan := make(chan string)
+	runChan := make(chan string)
+
+	if self.RunInput == nil {
+		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
+	}
+	go self.RunInput.InputProcess(charChan, runChan, true)
+	go CreateFile(runChan, self.Content)
 
 	return charChan
 }

@@ -72,6 +72,10 @@ func ActionsHandle(display *Display) {
 				charChan := display.Search()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
+			case "<C-t>": // Create file
+				charChan := display.Touch()
+				WriteHandle(display, charChan)
+				uiEvents = ui.PollEvents() // KOSTIL`
 			case "<C-n>": // Make directory
 				charChan := display.MkDir()
 				WriteHandle(display, charChan)
