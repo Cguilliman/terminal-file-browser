@@ -35,7 +35,7 @@ func check(command string, args ...string) bool {
 }
 
 // listen channel, when it close run command
-func Run(manager *Manager, runChan chan string) {
+func Run(runChan chan string, manager *Manager) {
 	var (
 		command string
 		args    []string

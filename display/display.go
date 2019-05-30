@@ -41,59 +41,24 @@ func (self *Display) Search() chan string {
 }
 
 func (self *Display) Run() chan string {
-	self.currentFocus = RUN
-	charChan := make(chan string)
-	runChan := make(chan string)
-
-	if self.RunInput == nil {
-		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
-	}
-	go self.RunInput.InputProcess(charChan, runChan, true)
-	go manager.Run(self.Content.Manager, runChan)
-
-	return charChan
+	return Command(
+		self, 
+		func(runChan chan string, content *manager.ContentList) {
+			manager.Run(runChan, content.Manager)
+		},
+	)
 }
 
 func (self *Display) MkDir() chan string {
-	self.currentFocus = RUN
-	charChan := make(chan string)
-	runChan := make(chan string)
-
-	if self.RunInput == nil {
-		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
-	}
-	go self.RunInput.InputProcess(charChan, runChan, true)
-	go CreateDir(runChan, self.Content)
-
-	return charChan
+	return Command(self, CreateDir)
 }
 
 func (self *Display) Touch() chan string {
-	self.currentFocus = RUN
-	charChan := make(chan string)
-	runChan := make(chan string)
-
-	if self.RunInput == nil {
-		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
-	}
-	go self.RunInput.InputProcess(charChan, runChan, true)
-	go CreateFile(runChan, self.Content)
-
-	return charChan
+	return Command(self, CreateFile)
 }
 
 func (self *Display) Zip() chan string {
-	self.currentFocus = RUN
-	charChan := make(chan string)
-	runChan := make(chan string)
-
-	if self.RunInput == nil {
-		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
-	}
-	go self.RunInput.InputProcess(charChan, runChan, true)
-	go manager.Zipping(runChan, self.Content)
-
-	return charChan
+	return Command(self, manager.Zipping)
 }
 
 func InitDisplay() *Display {
