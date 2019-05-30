@@ -61,6 +61,7 @@ func (manager *Manager) SetFiles() {
 	base_files := manager.defaultFiles()
 	files, err := ioutil.ReadDir(manager.Path)
 	if err != nil {
+		// TODO re-factor error logging
 		log.Fatal(err)
 	}
 
@@ -131,7 +132,7 @@ func (manager *Manager) GetDirPath(number int) string {
 		number = manager.CurrentFileNumber
 	}
 	return ConcatPath(
-		manager.Path, 
+		manager.Path,
 		manager.Files[number].Name(),
 	)
 }

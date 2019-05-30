@@ -1,13 +1,5 @@
 package manager
 
-type ContentListInterface interface {
-	ListUp()
-	PageUp()
-	ListDown()
-	PageDown()
-	SelectDir()
-}
-
 type ContentList struct {
 	RenderChan chan UpdateData
 	Widget     *Widget
@@ -45,7 +37,7 @@ func (self *ContentList) PageDown() {
 func (self *ContentList) Reset() {
 	self.Manager.SetFiles()
 	self.RenderChan <- UpdateData{
-		self.Manager.RenderList(nil), 
+		self.Manager.RenderList(nil),
 		"", "",
 	}
 }
@@ -57,7 +49,7 @@ func (self *ContentList) SelectDir(isParent bool) {
 		return
 	}
 	self.RenderChan <- UpdateData{
-		list, "GOTOP", 
+		list, "GOTOP",
 		self.Manager.Path,
 	}
 }
@@ -72,8 +64,8 @@ func Init(path string) *ContentList {
 	content.Widget, content.RenderChan = initWidget() // init widget and re-render channel
 	content.Manager = initManager(path)               // init manager worker
 	content.RenderChan <- UpdateData{                 // push current files rows in channel
-		content.Manager.RenderList(nil), 
+		content.Manager.RenderList(nil),
 		"", content.Manager.Path,
-	} 
+	}
 	return &content
 }

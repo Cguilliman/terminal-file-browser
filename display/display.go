@@ -82,6 +82,20 @@ func (self *Display) Touch() chan string {
 	return charChan
 }
 
+func (self *Display) Zip() chan string {
+	self.currentFocus = RUN
+	charChan := make(chan string)
+	runChan := make(chan string)
+
+	if self.RunInput == nil {
+		self.RunInput = inputs.Init("", [4]int{0, 20, 80, 23})
+	}
+	go self.RunInput.InputProcess(charChan, runChan, true)
+	go manager.Zipping(runChan, self.Content)
+
+	return charChan
+}
+
 func InitDisplay() *Display {
 	content := manager.Init("")
 	searchInput := inputs.Init("", [4]int{0, 0, 80, 3})

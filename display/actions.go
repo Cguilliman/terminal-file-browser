@@ -80,6 +80,10 @@ func ActionsHandle(display *Display) {
 				charChan := display.MkDir()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
+			case "<C-z>": // Make directory
+				charChan := display.Zip()
+				WriteHandle(display, charChan)
+				uiEvents = ui.PollEvents() // KOSTIL`
 			case "<Backspace>":
 				display.Content.SelectDir(true)
 			default:
