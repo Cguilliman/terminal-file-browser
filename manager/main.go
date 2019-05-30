@@ -17,42 +17,49 @@ type ContentList struct {
 func (self *ContentList) ListUp() {
 	self.RenderChan <- UpdateData{
 		self.Manager.PrevFile(),
-		"UP",
+		"UP", "",
 	}
 }
 
 func (self *ContentList) ListDown() {
 	self.RenderChan <- UpdateData{
 		self.Manager.NextFile(),
-		"DOWN",
+		"DOWN", "",
 	}
 }
 
 func (self *ContentList) PageUp() {
 	self.RenderChan <- UpdateData{
 		self.Manager.SetFirstFile(),
-		"PAGEUP",
+		"PAGEUP", "",
 	}
 }
 
 func (self *ContentList) PageDown() {
 	self.RenderChan <- UpdateData{
 		self.Manager.SetLastFile(),
-		"PAGEDOWN",
+		"PAGEDOWN", "",
 	}
 }
 
 func (self *ContentList) Reset() {
 	self.Manager.SetFiles()
-	self.RenderChan <- UpdateData{self.Manager.RenderList(nil), ""}
+	self.RenderChan <- UpdateData{
+		self.Manager.RenderList(nil), 
+		"", "",
+	}
 }
 
-func (self *ContentList) SelectDir() {
-	list, err := self.Manager.EnterDir()
+func (self *ContentList) SelectDir(isParent bool) {
+	list, err := self.Manager.EnterDir(isParent)
+
 	if err != nil {
 		return
 	}
-	self.RenderChan <- UpdateData{list, "GOTOP"}
+	self.RenderChan <- UpdateData{
+		list, "GOTOP", 
+		self.Manager.Path,
+	}
 }
 
 func (self *ContentList) SearchProcess(searchChan chan string) {
@@ -61,9 +68,12 @@ func (self *ContentList) SearchProcess(searchChan chan string) {
 }
 
 func Init(path string) *ContentList {
-	var content ContentList                                               // init contentList
-	content.Widget, content.RenderChan = initWidget()                     // init widget and re-render channel
-	content.Manager = initManager(path)                                   // init manager worker
-	content.RenderChan <- UpdateData{content.Manager.RenderList(nil), ""} // push current files rows in channel
+	var content ContentList                           // init contentList
+	content.Widget, content.RenderChan = initWidget() // init widget and re-render channel
+	content.Manager = initManager(path)               // init manager worker
+	content.RenderChan <- UpdateData{                 // push current files rows in channel
+		content.Manager.RenderList(nil), 
+		"", content.Manager.Path,
+	} 
 	return &content
 }

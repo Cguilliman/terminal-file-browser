@@ -15,7 +15,7 @@ func defaultHandlers(display *Display, value string) bool {
 	case "<PageUp>":
 		display.Content.PageUp()
 	case "<Enter>":
-		display.Content.SelectDir()
+		display.Content.SelectDir(false)
 	default:
 		return false
 	}
@@ -72,6 +72,8 @@ func ActionsHandle(display *Display) {
 				charChan := display.Search()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
+			case "<Backspace>":
+				display.Content.SelectDir(true)
 			default:
 				defaultHandlers(display, e.ID)
 			}

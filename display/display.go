@@ -19,7 +19,7 @@ type Display struct {
 
 func (self *Display) Submit(charChan chan string) bool {
 	if self.currentFocus == SEARCH {
-		self.Content.SelectDir()
+		self.Content.SelectDir(false)
 		close(charChan)
 		return true
 	} else if self.currentFocus == RUN {
@@ -34,7 +34,7 @@ func (self *Display) Search() chan string {
 	charChan := make(chan string)
 	searchChan := make(chan string)
 
-	go self.SearchInput.InputProcess(charChan, searchChan)
+	go self.SearchInput.InputProcess(charChan, searchChan, false)
 	go self.Content.SearchProcess(searchChan)
 
 	return charChan
@@ -45,10 +45,10 @@ func (self *Display) Run() chan string {
 	charChan := make(chan string)
 	runChan := make(chan string)
 
-	self.RunInput = inputs.Init("", [4]int{0, 3, 80, 3})
-	self.Content.Widget.Move([4]int{0, 6, 80, 20})
-	go self.RunInput.InputProcess(charChan, runChan)
-	go manager.Run(self.Content.Manager)
+	self.RunInput = inputs.Init("a", [4]int{0, 20, 80, 23})
+	// self.Content.Widget.Resize([4]int{0, 6, 80, 23})
+	go self.RunInput.InputProcess(charChan, runChan, true)
+	go manager.Run(self.Content.Manager, runChan)
 
 	return charChan
 }

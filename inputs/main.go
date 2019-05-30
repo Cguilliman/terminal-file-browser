@@ -16,27 +16,15 @@ func (self *Input) Reset() {
 	self.RenderChan <- DEFAULT_MESSAGE
 }
 
-func Init(value string, size [4]int) *Input {
-	var input Input
-	input.RenderChan, input.Widget = initWidget(size)
-
-	if value == "" {
-		input.Value = DEFAULT_MESSAGE
-		input.Reset()
-	} else {
-		input.Value = value
-		input.RenderChan <- value
-	}
-
-	return &input
-}
-
-func (self *Input) InputProcess(charChan, responseChan chan string) {
+func (self *Input) InputProcess(charChan, responseChan chan string, isClose bool) {
 	self.Value = ""
 	cursor := DefaultCursor(
 		self.RenderChan,
 		self.Value,
 	)
+	if isClose {
+		defer close(responseChan)
+	}
 	defer cursor.Disable()
 	defer self.Reset()
 
@@ -101,4 +89,19 @@ func (self *Input) InputProcess(charChan, responseChan chan string) {
 
 		responseChan <- self.Value // will return in parent channel of value
 	}
+}
+
+func Init(value string, size [4]int) *Input {
+	var input Input
+	input.RenderChan, input.Widget = initWidget(size)
+
+	if value == "" {
+		input.Value = DEFAULT_MESSAGE
+		input.Reset()
+	} else {
+		input.Value = value
+		input.RenderChan <- value
+	}
+
+	return &input
 }

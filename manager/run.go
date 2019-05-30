@@ -3,43 +3,52 @@ package manager
 import (
     "os/exec"
     "strings"
+    "fmt"
 )
 
 // run command on the system
 func runCommand(command string, args ...string) {
-    if value != "" {
-        // NOTE: is not tracking output, only execute
-        exec.Command(command, args...)
-    }
+    // NOTE: is not tracking output, only execute
+    fmt.Println(command, args)
+    cmd := exec.Command(command, args...)
+    cmd.Run()
 }
 
 // convert string in command 
-func convert(value, path string) (command string, args ...string) {
+func convert(value, path string) (command string, args []string) {
     REPLACED := "!!"
     if strings.Index(value, REPLACED) > 0 {
-        value := strings.ReplaceAll(value, REPLACED, path)
+        value = strings.Replace(value, REPLACED, path, -1)
     } else {
-
+        // remove space char at the end of the string, if exists
+        value = value[:len(value)-1] + strings.Replace(
+            value[len(value)-1:], " ", "", 1,
+        )
+        value = value + " " + path
     }
     splited := strings.Split(value, " ")
     return splited[0], splited[1:]
 }
 
 // check is command valid
-func check(command string, args ...args) bool {
+func check(command string, args ...string) bool {
     // NOT IMPLEMENTED
     return true
 }
 
 // listen channel, when it close run command
-func Run(manager Manager, runChan chan string) {
-    value := ""
-    defer runCommand(value)
+func Run(manager *Manager, runChan chan string) {
+    var (
+        command string
+        args []string
+    )
 
     for getted := range runChan {
-        command, args := convert(getted, manager.GetDirPath(-1))
+        _command, _args := convert(getted, manager.GetDirPath(-1))
         if check(command, args...) {
-            value := convert(command, args...)
+            command = _command
+            args = _args
         }
     }
+    runCommand(command, args...)
 }

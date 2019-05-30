@@ -99,13 +99,20 @@ func (manager *Manager) SetLastFile() []string {
 // Enter directory
 // change `manger.Path` as current inner director
 // inner directory files and save as `manager.Files`
-func (manager *Manager) EnterDir() ([]string, error) {
-	file := manager.Files[manager.CurrentFileNumber]
+func (manager *Manager) EnterDir(isParent bool) ([]string, error) {
+	var fileNumber int
+	if isParent {
+		fileNumber = 1
+	} else {
+		fileNumber = manager.CurrentFileNumber
+	}
+	file := manager.Files[fileNumber]
+
 	if !file.IsDir() {
 		return nil, errors.New("This is file!")
 	}
 
-	switch manager.CurrentFileNumber {
+	switch fileNumber {
 	case 0:
 		return manager.RenderList(nil), nil
 	case 1:
@@ -119,7 +126,7 @@ func (manager *Manager) EnterDir() ([]string, error) {
 	return manager.RenderList(nil), nil
 }
 
-func (manager *Manager) GetDirPath(number int) {
+func (manager *Manager) GetDirPath(number int) string {
 	if number < 0 {
 		number = manager.CurrentFileNumber
 	}
@@ -144,7 +151,7 @@ func (manager *Manager) Search(searchChan chan string, renderChan chan UpdateDat
 
 		renderChan <- UpdateData{
 			manager.RenderList(manager.Files),
-			"GOTOP",
+			"GOTOP", "",
 		}
 	}
 	close(renderChan)
