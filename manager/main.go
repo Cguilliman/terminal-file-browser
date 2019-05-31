@@ -51,7 +51,7 @@ func (self *ContentList) PickOutAll() {
 	}
 }
 
-func (self *ContentList) addTemporary(action string) {
+func (self *ContentList) GetSelectedFiles() []string {
 	var files []string
 	for _, item := range self.Manager.Highlighting {
 		files = append(
@@ -59,12 +59,16 @@ func (self *ContentList) addTemporary(action string) {
 			self.Manager.GetDirPath(item),
 		)
 	}
-	if len(files) == 0 {
+	if len(files) == 0 && self.Manager.CurrentFileNumber > 1 {
 		// set current file/directory in focus
 		files = []string{self.Manager.GetDirPath(-1)}
 	}
+	return files
+}
+
+func (self *ContentList) addTemporary(action string) {
 	self.tempFiles = &TemporaryFiles{
-		TemporaryFiles: files, 
+		TemporaryFiles: self.GetSelectedFiles(), 
 		action: action,
 		baseDirectory: self.Manager.Path,
 	}
