@@ -2,6 +2,8 @@ package manager
 
 import (
 	"fmt"
+	tmp "github.com/Cguilliman/terminal-file-browser/manager/temporary"
+	// tmp "github.com/Cguilliman/terminal-file-browser/manager/zipping"
 )
 
 const PATH = "/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser/"
@@ -53,20 +55,20 @@ func testConvertFunc() {
 	)
 }
 
-func testGetNested() {
-	fmt.Println(GetNested(PATH+"inputs/"))
-}
+// func testGetNested() {
+// 	fmt.Println(GetNested(PATH+"inputs/"))
+// }
 
-func testUnzipping() {
-	Unzip(PATH+"new.zip", "testme")
-}
+// func testUnzipping() {
+// 	zipping.Unzip(PATH+"new.zip", "testme")
+// }
 
 func testCopping() {
-	DirCopping(
+	tmp.DirCopping(
 		PATH+"inputs/",
 		PATH+"scripts/inputs/",
 	)
-	FileCopping(
+	tmp.FileCopping(
 		PATH+"inputs/main.go",
 		PATH+"scripts/inputs/main.go",
 	)

@@ -1,10 +1,14 @@
 package manager
 
+import (
+	tmp "github.com/Cguilliman/terminal-file-browser/manager/temporary"
+)
+
 type ContentList struct {
-	RenderChan     chan UpdateData
-	Widget         *Widget
-	Manager        *Manager
-	tempFiles      *TemporaryFiles // contain files witch will be remove/copy
+	RenderChan chan UpdateData
+	Widget     *Widget
+	Manager    *Manager
+	tempFiles  *tmp.TemporaryFiles // contain files witch will be remove/copy
 }
 
 func (self *ContentList) ListUp() {
@@ -67,28 +71,28 @@ func (self *ContentList) GetSelectedFiles() []string {
 }
 
 func (self *ContentList) addTemporary(action string) {
-	self.tempFiles = &TemporaryFiles{
-		TemporaryFiles: self.GetSelectedFiles(), 
-		action: action,
-		baseDirectory: self.Manager.Path,
+	self.tempFiles = &tmp.TemporaryFiles{
+		TemporaryFiles: self.GetSelectedFiles(),
+		Action:         action,
+		BaseDirectory:  self.Manager.Path,
 	}
 }
 
 func (self *ContentList) Cut() {
-	self.addTemporary(CUT)
+	self.addTemporary(tmp.CUT)
 }
 
 func (self *ContentList) Copy() {
-	self.addTemporary(COPY)
+	self.addTemporary(tmp.COPY)
 }
 
 func (self *ContentList) Delete() {
-	self.addTemporary(DEL)
+	self.addTemporary(tmp.DEL)
 	self.tempFiles.Delete()
 
 	self.Manager.SetFiles()
 	self.RenderChan <- UpdateData{
-		self.Manager.SetFirstFile(), 
+		self.Manager.SetFirstFile(),
 		"GOTOP", "",
 	}
 }

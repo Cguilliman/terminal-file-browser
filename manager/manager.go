@@ -2,6 +2,7 @@ package manager
 
 import (
 	"errors"
+	"github.com/Cguilliman/terminal-file-browser/utils"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,14 +15,13 @@ type Manager struct {
 	Files, Searchable []os.FileInfo
 	CurrentFileNumber int
 	Highlighting      []int
-	
 }
 
 func (manager *Manager) PickOutFile() {
 	if manager.CurrentFileNumber > 1 {
-		if inIntArray(manager.CurrentFileNumber, manager.Highlighting) {
-			manager.Highlighting = removeFromIntArray(
-				manager.CurrentFileNumber, 
+		if utils.InIntArray(manager.CurrentFileNumber, manager.Highlighting) {
+			manager.Highlighting = utils.RemoveFromIntArray(
+				manager.CurrentFileNumber,
 				manager.Highlighting,
 			)
 		} else {
@@ -35,7 +35,7 @@ func (manager *Manager) PickOutFile() {
 
 func (manager *Manager) PickOutAllFiles() {
 	allFiles := []int{}
-	for i := 2; i!=len(manager.Files); i++ {
+	for i := 2; i != len(manager.Files); i++ {
 		allFiles = append(allFiles, i)
 	}
 	if len(manager.Highlighting) == 0 && len(allFiles) > 0 {
@@ -69,7 +69,7 @@ func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
 		}
 
 		row := fileName + " " + strconv.Itoa(int(file.Size()))
-		if inIntArray(n, manager.Highlighting) {
+		if utils.InIntArray(n, manager.Highlighting) {
 			row = "[" + row + "*](fg:green)"
 		} else if file.IsDir() {
 			row = "[" + row + "](fg:blue)"
@@ -87,8 +87,8 @@ func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
 // and parent directory `os.FileIngo` objects list
 func (manager *Manager) defaultFiles() []os.FileInfo {
 	return []os.FileInfo{
-		getFile(manager.Path),
-		getFile(ParentDirPath(manager.Path)),
+		utils.GetFile(manager.Path),
+		utils.GetFile(utils.ParentDirPath(manager.Path)),
 	}
 }
 
@@ -153,9 +153,9 @@ func (manager *Manager) EnterDir(isParent bool) ([]string, error) {
 	case 0:
 		return manager.RenderList(nil), nil
 	case 1:
-		manager.Path = ParentDirPath(manager.Path)
+		manager.Path = utils.ParentDirPath(manager.Path)
 	default:
-		manager.Path = ConcatPath(manager.Path, file.Name())
+		manager.Path = utils.ConcatPath(manager.Path, file.Name())
 	}
 
 	manager.CurrentFileNumber = 0
@@ -167,7 +167,7 @@ func (manager *Manager) GetDirPath(number int) string {
 	if number < 0 {
 		number = manager.CurrentFileNumber
 	}
-	return ConcatPath(
+	return utils.ConcatPath(
 		manager.Path,
 		manager.Files[number].Name(),
 	)
@@ -196,7 +196,7 @@ func (manager *Manager) Search(searchChan chan string, renderChan chan UpdateDat
 
 func initManager(path string) *Manager {
 	if path == "" {
-		path = getLocalPath()
+		path = utils.GetLocalPath()
 	}
 
 	var manager Manager

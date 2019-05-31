@@ -3,6 +3,7 @@ package display
 import (
 	"github.com/Cguilliman/terminal-file-browser/inputs"
 	"github.com/Cguilliman/terminal-file-browser/manager"
+	"github.com/Cguilliman/terminal-file-browser/manager/zipping"
 )
 
 const (
@@ -58,11 +59,11 @@ func (self *Display) Touch() chan string {
 }
 
 func (self *Display) Zip() chan string {
-	return Command(self, manager.Zipping)
+	return Command(self, zipping.Zipping)
 }
 
 func (self *Display) Unzip() chan string {
-	return Command(self, manager.Unzipping)
+	return Command(self, zipping.Unzipping)
 }
 
 func InitDisplay() *Display {

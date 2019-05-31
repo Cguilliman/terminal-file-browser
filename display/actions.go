@@ -40,7 +40,7 @@ func WriteHandle(display *Display, charChan chan string, uiEvents <-chan ui.Even
 				display.Content.Reset(true)
 				display.SearchInput.Reset()
 				close(charChan)
-				return 
+				return
 			case "<Enter>":
 				if display.Submit(charChan) {
 					return
@@ -62,7 +62,7 @@ func ActionsHandle(display *Display) {
 		select {
 		case e := <-uiEvents:
 			switch e.ID {
-			case "<C-q>":  // quit
+			case "<C-q>": // quit
 				return
 			case "<Backspace>": // select directory
 				display.Content.SelectDir(true)

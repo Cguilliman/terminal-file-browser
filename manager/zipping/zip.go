@@ -1,40 +1,11 @@
-package manager
+package zipping
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 	"strings"
 )
-
-func Zipping(zipChan chan string, content *ContentList) {
-	var (
-		filePath string
-		files    []string
-	)
-	for value := range zipChan {
-		filePath = value
-	}
-
-	for _, fileObjPath := range content.GetSelectedFiles() {
-		if getFile(fileObjPath).IsDir() {
-			files = append(files, GetNested(fileObjPath)...)
-		} else {
-			files = append(files, fileObjPath)
-		}
-	}
-	// TODO print errors in some GUI block
-	err := MakeArchive(
-		ConcatPath(content.Manager.Path, filePath), 
-		content.Manager.Path,
-		files,
-	)
-	if err != nil {
-		fmt.Println(err)
-	}
-	content.Reset(true)
-}
 
 func MakeArchive(pathToZip, rootDir string, files []string) error {
 	// create zip file

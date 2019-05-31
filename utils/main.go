@@ -1,4 +1,4 @@
-package manager
+package utils
 
 import (
 	"io/ioutil"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func getFile(path string) os.FileInfo {
+func GetFile(path string) os.FileInfo {
 	file, err := os.Lstat(path)
 	if err != nil {
 		log.Fatal(err.Error)
@@ -15,7 +15,7 @@ func getFile(path string) os.FileInfo {
 	return file
 }
 
-func removeFromIntArray(val int, arr []int) ([]int) {
+func RemoveFromIntArray(val int, arr []int) []int {
 	for n, item := range arr {
 		if item == val {
 			lastArr := []int{}
@@ -29,7 +29,7 @@ func removeFromIntArray(val int, arr []int) ([]int) {
 	return arr
 }
 
-func inIntArray(val int, arr []int) bool {
+func InIntArray(val int, arr []int) bool {
 	for _, item := range arr {
 		if item == val {
 			return true
@@ -38,7 +38,7 @@ func inIntArray(val int, arr []int) bool {
 	return false
 }
 
-func getLocalPath() string {
+func GetLocalPath() string {
 	path, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
