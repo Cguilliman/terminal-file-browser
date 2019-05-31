@@ -22,22 +22,6 @@ type TemporaryFiles struct {
     action         string
 }
 
-func (self *TemporaryFiles) MergeFiles(files []string) {
-    isExist := false
-    for _, item := range files {
-        for _, existItem := range self.TemporaryFiles {
-            if item == existItem {
-                isExist = true
-            }
-        }
-        if !isExist {
-            self.TemporaryFiles = append(self.TemporaryFiles, item)
-        }
-        isExist = false
-    }
-    self.TemporaryFiles = files
-}
-
 func (self *TemporaryFiles) Paste(path string) {
     if self.action == COPY || self.action == CUT {
         self.Copy(path)
@@ -48,6 +32,9 @@ func (self *TemporaryFiles) Paste(path string) {
 }
 
 func (self *TemporaryFiles) Delete() {
+    for _, file := range self.TemporaryFiles {
+        os.RemoveAll(file)
+    }
 }
 
 func (self *TemporaryFiles) Copy(path string) {

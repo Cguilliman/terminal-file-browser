@@ -51,7 +51,7 @@ func (self *ContentList) PickOutAll() {
 	}
 }
 
-func (self *ContentList) Copy() {
+func (self *ContentList) addTemporary(action string) {
 	var files []string
 	for _, item := range self.Manager.Highlighting {
 		files = append(
@@ -65,8 +65,27 @@ func (self *ContentList) Copy() {
 	}
 	self.tempFiles = &TemporaryFiles{
 		TemporaryFiles: files, 
-		action: COPY,
+		action: action,
 		baseDirectory: self.Manager.Path,
+	}
+}
+
+func (self *ContentList) Cut() {
+	self.addTemporary(CUT)
+}
+
+func (self *ContentList) Copy() {
+	self.addTemporary(COPY)
+}
+
+func (self *ContentList) Delete() {
+	self.addTemporary(DEL)
+	self.tempFiles.Delete()
+
+	self.Manager.SetFiles()
+	self.RenderChan <- UpdateData{
+		self.Manager.SetFirstFile(), 
+		"GOTOP", "",
 	}
 }
 
