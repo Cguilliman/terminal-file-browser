@@ -1,8 +1,8 @@
 package manager
 
 import (
-	tmp "github.com/Cguilliman/terminal-file-browser/manager/temporary"
 	mg "github.com/Cguilliman/terminal-file-browser/manager/core"
+	tmp "github.com/Cguilliman/terminal-file-browser/manager/temporary"
 )
 
 type ContentList struct {
@@ -134,19 +134,30 @@ func (self *ContentList) SearchProcess(searchChan chan string) {
 	search := self.Manager.Search()
 	for searchable := range searchChan {
 		self.RenderChan <- UpdateData{
-            search(searchable),
-            "GOTOP", "",
-        }
+			search(searchable),
+			"GOTOP", "",
+		}
 	}
 	close(self.RenderChan)
 	self.Widget.GoTop()
 	// self.Manager.Search(searchChan, self.RenderChan)
 }
 
+func (self *ContentList) SizeProcess() {
+	updateChan := make(chan bool)
+    go self.Manager.SizeCalculate(updateChan)
+    for _ = range updateChan {
+        self.RenderChan <- UpdateData{
+        	self.Manager.RenderList(nil),
+        	"", "",
+        }
+    }
+}
+
 func Init(path string) *ContentList {
 	var content ContentList                           // init contentList
 	content.Widget, content.RenderChan = initWidget() // init widget and re-render channel
-	content.Manager = mg.InitManager(path)               // init manager worker
+	content.Manager = mg.InitManager(path)            // init manager worker
 	content.RenderChan <- UpdateData{                 // push current files rows in channel
 		content.Manager.RenderList(nil),
 		"", content.Manager.Path,

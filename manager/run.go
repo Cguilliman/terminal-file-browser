@@ -1,9 +1,9 @@
 package manager
 
 import (
+	mg "github.com/Cguilliman/terminal-file-browser/manager/core"
 	"os/exec"
 	"strings"
-	mg "github.com/Cguilliman/terminal-file-browser/manager/core"
 )
 
 // run command on the system
