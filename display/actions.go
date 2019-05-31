@@ -66,8 +66,14 @@ func ActionsHandle(display *Display) {
 				return
 			case "<Backspace>": // select directory
 				display.Content.SelectDir(true)
-			case "<Space>":
+			case "<Space>": // pick out file
 				display.Content.PickOut()
+			case "<C-a>": // pick out all files in directory
+				display.Content.PickOutAll()
+			case "<C-c>": // copy file or directory
+				display.Content.Copy()
+			case "<C-v>": // paste file or directory
+				display.Content.Paste()
 
 			case "<C-r>": // run command
 				charChan := display.Run()

@@ -61,8 +61,20 @@ func testUnzipping() {
 	Unzip(PATH+"new.zip", "testme")
 }
 
+func testCopping() {
+	DirCopping(
+		PATH+"inputs/",
+		PATH+"scripts/inputs/",
+	)
+	FileCopping(
+		PATH+"inputs/main.go",
+		PATH+"scripts/inputs/main.go",
+	)
+}
+
 func RunTests() {
-	testConvertFunc()
+	// testConvertFunc()
 	// testGetNested()
-	testUnzipping()
+	// testUnzipping()
+	// testCopping()
 }

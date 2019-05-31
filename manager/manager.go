@@ -14,6 +14,7 @@ type Manager struct {
 	Files, Searchable []os.FileInfo
 	CurrentFileNumber int
 	Highlighting      []int
+	
 }
 
 func (manager *Manager) PickOutFile() {
@@ -29,6 +30,18 @@ func (manager *Manager) PickOutFile() {
 				manager.CurrentFileNumber,
 			)
 		}
+	}
+}
+
+func (manager *Manager) PickOutAllFiles() {
+	allFiles := []int{}
+	for i := 2; i!=len(manager.Files); i++ {
+		allFiles = append(allFiles, i)
+	}
+	if len(manager.Highlighting) == 0 && len(allFiles) > 0 {
+		manager.Highlighting = allFiles
+	} else {
+		manager.Highlighting = []int{}
 	}
 }
 
@@ -188,6 +201,7 @@ func initManager(path string) *Manager {
 
 	var manager Manager
 	manager.Path = path
+	manager.Highlighting = []int{}
 	manager.SetFiles()
 	manager.CurrentFileNumber = 0
 

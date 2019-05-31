@@ -1,9 +1,10 @@
 package manager
 
 type ContentList struct {
-	RenderChan chan UpdateData
-	Widget     *Widget
-	Manager    *Manager
+	RenderChan     chan UpdateData
+	Widget         *Widget
+	Manager        *Manager
+	tempFiles      *TemporaryFiles // contain files witch will be remove/copy
 }
 
 func (self *ContentList) ListUp() {
@@ -40,6 +41,40 @@ func (self *ContentList) PickOut() {
 		self.Manager.RenderList(nil),
 		"", "",
 	}
+}
+
+func (self *ContentList) PickOutAll() {
+	self.Manager.PickOutAllFiles()
+	self.RenderChan <- UpdateData{
+		self.Manager.RenderList(nil),
+		"", "",
+	}
+}
+
+func (self *ContentList) Copy() {
+	var files []string
+	for _, item := range self.Manager.Highlighting {
+		files = append(
+			files,
+			self.Manager.GetDirPath(item),
+		)
+	}
+	if len(files) == 0 {
+		// set current file/directory in focus
+		files = []string{self.Manager.GetDirPath(-1)}
+	}
+	self.tempFiles = &TemporaryFiles{
+		TemporaryFiles: files, 
+		action: COPY,
+		baseDirectory: self.Manager.Path,
+	}
+}
+
+func (self *ContentList) Paste() {
+	if self.tempFiles != nil {
+		self.tempFiles.Paste(self.Manager.Path)
+	}
+	self.Reset(true)
 }
 
 func (self *ContentList) Reset(isHighlight bool) {
@@ -80,5 +115,6 @@ func Init(path string) *ContentList {
 		content.Manager.RenderList(nil),
 		"", content.Manager.Path,
 	}
+	content.tempFiles = nil
 	return &content
 }
