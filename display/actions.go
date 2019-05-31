@@ -80,8 +80,12 @@ func ActionsHandle(display *Display) {
 				charChan := display.MkDir()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
-			case "<C-z>": // Make directory
+			case "<C-z>": // zip file or dir
 				charChan := display.Zip()
+				WriteHandle(display, charChan)
+				uiEvents = ui.PollEvents() // KOSTIL`
+			case "<C-u>": // unzip file
+				charChan := display.Unzip()
 				WriteHandle(display, charChan)
 				uiEvents = ui.PollEvents() // KOSTIL`
 			case "<Backspace>":

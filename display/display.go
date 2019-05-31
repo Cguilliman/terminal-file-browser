@@ -61,6 +61,10 @@ func (self *Display) Zip() chan string {
 	return Command(self, manager.Zipping)
 }
 
+func (self *Display) Unzip() chan string {
+	return Command(self, manager.Unzipping)
+}
+
 func InitDisplay() *Display {
 	content := manager.Init("")
 	searchInput := inputs.Init("", [4]int{0, 0, 80, 3})

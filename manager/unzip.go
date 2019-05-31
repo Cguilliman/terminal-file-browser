@@ -1,65 +1,82 @@
 package manager
 
-// import (
-//     "archive/zip"
-//     "fmt"
-//     "io"
-//     "os"
-//     "path/filepath"
-//     "strings"
-// )
+import (
+    "archive/zip"
+    "fmt"
+    "io"
+    "os"
+    "path/filepath"
+    "strings"
+)
 
-// func Unzip(outputs string) {
-//     var filenames []string
+func Unzipping(channel chan string, content *ContentList) {
+    fmt.Println(content.Manager.GetDirPath(-1))
+    var filename string
+    for _filename := range channel {
+        filename = _filename
+    }
+    
+    fmt.Println(content.Manager.GetDirPath(-1))
+    fmt.Println(ConcatPath(content.Manager.Path, filename))
+    s, err := Unzip(
+        content.Manager.GetDirPath(-1), 
+        ConcatPath(content.Manager.Path, filename),
+    )
+    fmt.Println(s, err)
+    content.Reset()
+}
 
-//     reader, err := zip.OpenReader(src)
-//     if err != nil {
-//         return filenames, err
-//     }
-//     defer reader.Close()
+func Unzip(source, outputs string) ([]string, error) {
+    var filenames []string
 
-//     for _, file := range reader.File {
+    reader, err := zip.OpenReader(source)
+    if err != nil {
+        return filenames, err
+    }
+    defer reader.Close()
 
-//         // Store filename/path for returning and using later on
-//         filePath := filepath.Join(outputs, file.Name)
+    for _, file := range reader.File {
 
-//         // Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
-//         if !strings.HasPrefix(filePath, filepath.Clean(outputs)+string(os.PathSeparator)) {
-//             return filenames, fmt.Errorf("%s: illegal file path", filePath)
-//         }
+        // Store filename/path for returning and using later on
+        filePath := filepath.Join(outputs, file.Name)
 
-//         filenames = append(filenames, filePath)
+        // Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
+        if !strings.HasPrefix(filePath, filepath.Clean(outputs)+string(os.PathSeparator)) {
+            return filenames, fmt.Errorf("%s: illegal file path", filePath)
+        }
 
-//         if file.FileInfo().IsDir() {
-//             // Make Folder
-//             os.MkdirAll(filePath, os.ModePerm)
-//             continue
-//         }
+        filenames = append(filenames, filePath)
 
-//         // Make File
-//         if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-//             return filenames, err
-//         }
+        if file.FileInfo().IsDir() {
+            // Make Folder
+            os.MkdirAll(filePath, os.ModePerm)
+            continue
+        }
 
-//         outFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-//         if err != nil {
-//             return filenames, err
-//         }
+        // Make File
+        if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+            return filenames, err
+        }
 
-//         rc, err := file.Open()
-//         if err != nil {
-//             return filenames, err
-//         }
+        outFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+        if err != nil {
+            return filenames, err
+        }
 
-//         _, err = io.Copy(outFile, rc)
+        rc, err := file.Open()
+        if err != nil {
+            return filenames, err
+        }
 
-//         // Close the file without defer to close before next iteration of loop
-//         outFile.Close()
-//         rc.Close()
+        _, err = io.Copy(outFile, rc)
 
-//         if err != nil {
-//             return filenames, err
-//         }
-//     }
-//     return filenames, nil
-// }
+        // Close the file without defer to close before next iteration of loop
+        outFile.Close()
+        rc.Close()
+
+        if err != nil {
+            return filenames, err
+        }
+    }
+    return filenames, nil
+}

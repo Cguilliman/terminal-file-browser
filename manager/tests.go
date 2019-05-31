@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+const PATH = "/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser/"
+
 func assertEqual(val, val1 interface{}) {
 	if val != val1 {
 		fmt.Printf("%v and %v not Equal\n", val, val1)
@@ -52,10 +54,15 @@ func testConvertFunc() {
 }
 
 func testGetNested() {
-	fmt.Println(GetNested("/home/guilliman/go/src/github.com/Cguilliman/terminal-file-browser/inputs/"))
+	fmt.Println(GetNested(PATH+"inputs/"))
+}
+
+func testUnzipping() {
+	Unzip(PATH+"new.zip", "testme")
 }
 
 func RunTests() {
 	testConvertFunc()
-	testGetNested()
+	// testGetNested()
+	testUnzipping()
 }
