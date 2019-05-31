@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// TODO maybe re-factor to golang implementation
+
 const (
 	TOUCH string = "touch"
 	MKDIR string = "mkdir"
@@ -27,7 +29,7 @@ func SimpleRun(command string, nameChan chan string, content *mg.ContentList) {
 
 	cmd := exec.Command(command, path)
 	cmd.Run()
-	content.Reset()
+	content.Reset(true)
 }
 
 func CreateDir(nameChan chan string, content *mg.ContentList) {

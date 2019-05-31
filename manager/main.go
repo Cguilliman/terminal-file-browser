@@ -34,7 +34,18 @@ func (self *ContentList) PageDown() {
 	}
 }
 
-func (self *ContentList) Reset() {
+func (self *ContentList) PickOut() {
+	self.Manager.PickOutFile()
+	self.RenderChan <- UpdateData{
+		self.Manager.RenderList(nil),
+		"", "",
+	}
+}
+
+func (self *ContentList) Reset(isHighlight bool) {
+	if isHighlight {
+		self.Manager.DelHighlighting()
+	}
 	self.Manager.SetFiles()
 	self.RenderChan <- UpdateData{
 		self.Manager.RenderList(nil),
@@ -43,6 +54,7 @@ func (self *ContentList) Reset() {
 }
 
 func (self *ContentList) SelectDir(isParent bool) {
+	self.Manager.DelHighlighting()
 	list, err := self.Manager.EnterDir(isParent)
 
 	if err != nil {
@@ -55,6 +67,7 @@ func (self *ContentList) SelectDir(isParent bool) {
 }
 
 func (self *ContentList) SearchProcess(searchChan chan string) {
+	self.Manager.DelHighlighting()
 	self.Manager.Search(searchChan, self.RenderChan)
 	self.Widget.GoTop()
 }

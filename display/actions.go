@@ -37,7 +37,7 @@ func WriteHandle(display *Display, charChan chan string, uiEvents <-chan ui.Even
 		if e.Type == ui.KeyboardEvent {
 			switch e.ID {
 			case "<C-f>", "<C-q>":
-				display.Content.Reset()
+				display.Content.Reset(true)
 				display.SearchInput.Reset()
 				close(charChan)
 				return 
@@ -66,6 +66,8 @@ func ActionsHandle(display *Display) {
 				return
 			case "<Backspace>": // select directory
 				display.Content.SelectDir(true)
+			case "<Space>":
+				display.Content.PickOut()
 
 			case "<C-r>": // run command
 				charChan := display.Run()

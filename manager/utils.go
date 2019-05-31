@@ -15,6 +15,29 @@ func getFile(path string) os.FileInfo {
 	return file
 }
 
+func removeFromIntArray(val int, arr []int) ([]int) {
+	for n, item := range arr {
+		if item == val {
+			lastArr := []int{}
+			if len(arr) > n+1 {
+				lastArr = arr[n+1:]
+			}
+			arr = append(arr[:n], lastArr...)
+			return arr
+		}
+	}
+	return arr
+}
+
+func inIntArray(val int, arr []int) bool {
+	for _, item := range arr {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
+
 func getLocalPath() string {
 	path, err := os.Getwd()
 	if err != nil {

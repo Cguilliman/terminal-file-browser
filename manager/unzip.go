@@ -10,20 +10,17 @@ import (
 )
 
 func Unzipping(channel chan string, content *ContentList) {
-    fmt.Println(content.Manager.GetDirPath(-1))
     var filename string
     for _filename := range channel {
         filename = _filename
     }
-    
-    fmt.Println(content.Manager.GetDirPath(-1))
-    fmt.Println(ConcatPath(content.Manager.Path, filename))
-    s, err := Unzip(
+
+    Unzip(
         content.Manager.GetDirPath(-1), 
         ConcatPath(content.Manager.Path, filename),
     )
-    fmt.Println(s, err)
-    content.Reset()
+    // fmt.Println(s, err)
+    content.Reset(true)
 }
 
 func Unzip(source, outputs string) ([]string, error) {

@@ -13,6 +13,27 @@ type Manager struct {
 	Path              string
 	Files, Searchable []os.FileInfo
 	CurrentFileNumber int
+	Highlighting      []int
+}
+
+func (manager *Manager) PickOutFile() {
+	if manager.CurrentFileNumber > 1 {
+		if inIntArray(manager.CurrentFileNumber, manager.Highlighting) {
+			manager.Highlighting = removeFromIntArray(
+				manager.CurrentFileNumber, 
+				manager.Highlighting,
+			)
+		} else {
+			manager.Highlighting = append(
+				manager.Highlighting,
+				manager.CurrentFileNumber,
+			)
+		}
+	}
+}
+
+func (manager *Manager) DelHighlighting() {
+	manager.Highlighting = []int{}
 }
 
 // Return array of strings for render
@@ -35,11 +56,13 @@ func (manager *Manager) RenderList(fileList []os.FileInfo) []string {
 		}
 
 		row := fileName + " " + strconv.Itoa(int(file.Size()))
+		if inIntArray(n, manager.Highlighting) {
+			row = "[" + row + "*](fg:green)"
+		} else if file.IsDir() {
+			row = "[" + row + "](fg:blue)"
+		}
 		if n == manager.CurrentFileNumber {
 			row = ">> " + row
-		}
-		if file.IsDir() {
-			row = "[" + row + "](fg:blue)"
 		}
 		response = append(response, row)
 	}

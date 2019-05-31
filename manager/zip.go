@@ -34,7 +34,7 @@ func Zipping(zipChan chan string, content *ContentList) {
 	if err := MakeArchive(filePath, files); err != nil {
 		fmt.Println(err)
 	}
-	content.Reset()
+	content.Reset(true)
 }
 
 func MakeArchive(pathToZip string, files []string) error {
