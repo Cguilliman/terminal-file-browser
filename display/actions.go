@@ -30,8 +30,8 @@ func charDescript(char string, searchChan chan string) {
 	searchChan <- char
 }
 
-func WriteHandle(display *Display, charChan chan string) {
-	uiEvents := ui.PollEvents()
+func WriteHandle(display *Display, charChan chan string, uiEvents <-chan ui.Event) {
+	// uiEvents := ui.PollEvents()
 
 	for e := range uiEvents {
 		if e.Type == ui.KeyboardEvent {
@@ -40,7 +40,7 @@ func WriteHandle(display *Display, charChan chan string) {
 				display.Content.Reset()
 				display.SearchInput.Reset()
 				close(charChan)
-				return
+				return 
 			case "<Enter>":
 				if display.Submit(charChan) {
 					return
@@ -62,34 +62,35 @@ func ActionsHandle(display *Display) {
 		select {
 		case e := <-uiEvents:
 			switch e.ID {
-			case "<C-q>":
+			case "<C-q>":  // quit
 				return
-			case "<C-r>":
+			case "<Backspace>": // select directory
+				display.Content.SelectDir(true)
+
+			case "<C-r>": // run command
 				charChan := display.Run()
-				WriteHandle(display, charChan)
-				uiEvents = ui.PollEvents() // KOSTIL`
-			case "<C-f>": // Searching
+				WriteHandle(display, charChan, uiEvents)
+
+			case "<C-f>": // search in directory
 				charChan := display.Search()
-				WriteHandle(display, charChan)
-				uiEvents = ui.PollEvents() // KOSTIL`
-			case "<C-t>": // Create file
+				WriteHandle(display, charChan, uiEvents)
+
+			case "<C-t>": // create file
 				charChan := display.Touch()
-				WriteHandle(display, charChan)
-				uiEvents = ui.PollEvents() // KOSTIL`
-			case "<C-n>": // Make directory
+				WriteHandle(display, charChan, uiEvents)
+
+			case "<C-n>": // make directory
 				charChan := display.MkDir()
-				WriteHandle(display, charChan)
-				uiEvents = ui.PollEvents() // KOSTIL`
+				WriteHandle(display, charChan, uiEvents)
+
 			case "<C-z>": // zip file or dir
 				charChan := display.Zip()
-				WriteHandle(display, charChan)
-				uiEvents = ui.PollEvents() // KOSTIL`
+				WriteHandle(display, charChan, uiEvents)
+
 			case "<C-u>": // unzip file
 				charChan := display.Unzip()
-				WriteHandle(display, charChan)
-				uiEvents = ui.PollEvents() // KOSTIL`
-			case "<Backspace>":
-				display.Content.SelectDir(true)
+				WriteHandle(display, charChan, uiEvents)
+
 			default:
 				defaultHandlers(display, e.ID)
 			}
