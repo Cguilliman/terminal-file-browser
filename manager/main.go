@@ -2,12 +2,13 @@ package manager
 
 import (
 	tmp "github.com/Cguilliman/terminal-file-browser/manager/temporary"
+	mg "github.com/Cguilliman/terminal-file-browser/manager/core"
 )
 
 type ContentList struct {
 	RenderChan chan UpdateData
 	Widget     *Widget
-	Manager    *Manager
+	Manager    *mg.Manager
 	tempFiles  *tmp.TemporaryFiles // contain files witch will be remove/copy
 }
 
@@ -130,14 +131,22 @@ func (self *ContentList) SelectDir(isParent bool) {
 
 func (self *ContentList) SearchProcess(searchChan chan string) {
 	self.Manager.DelHighlighting()
-	self.Manager.Search(searchChan, self.RenderChan)
+	search := self.Manager.Search()
+	for searchable := range searchChan {
+		self.RenderChan <- UpdateData{
+            search(searchable),
+            "GOTOP", "",
+        }
+	}
+	close(self.RenderChan)
 	self.Widget.GoTop()
+	// self.Manager.Search(searchChan, self.RenderChan)
 }
 
 func Init(path string) *ContentList {
 	var content ContentList                           // init contentList
 	content.Widget, content.RenderChan = initWidget() // init widget and re-render channel
-	content.Manager = initManager(path)               // init manager worker
+	content.Manager = mg.InitManager(path)               // init manager worker
 	content.RenderChan <- UpdateData{                 // push current files rows in channel
 		content.Manager.RenderList(nil),
 		"", content.Manager.Path,

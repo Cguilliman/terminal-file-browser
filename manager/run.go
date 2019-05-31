@@ -3,6 +3,7 @@ package manager
 import (
 	"os/exec"
 	"strings"
+	mg "github.com/Cguilliman/terminal-file-browser/manager/core"
 )
 
 // run command on the system
@@ -35,7 +36,7 @@ func check(command string, args ...string) bool {
 }
 
 // listen channel, when it close run command
-func Run(runChan chan string, manager *Manager) {
+func Run(runChan chan string, manager *mg.Manager) {
 	var (
 		command string
 		args    []string
